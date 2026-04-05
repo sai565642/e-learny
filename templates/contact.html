@@ -1,0 +1,90 @@
+{% extends "layout.html" %}
+
+{% block title %}Contact Support - e-Learny{% endblock %}
+
+{% block extra_css %}
+<style>
+    .contact-container { max-width: 1200px; margin: 40px auto 100px; padding: 0 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+    @media(max-width: 800px) { .contact-container { grid-template-columns: 1fr; } }
+    
+    .contact-info { background: #1e293b; color: white; border-radius: 20px; padding: 40px; }
+    .info-item { display: flex; gap: 15px; margin-bottom: 30px; align-items: flex-start; }
+    .info-icon { width: 45px; height: 45px; background: rgba(255,255,255,0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0;}
+    .info-text h4 { margin: 0 0 5px 0; font-size: 1.1rem; font-weight: 700; color: white; }
+    .info-text p { margin: 0; color: #94a3b8; font-size: 0.95rem; line-height: 1.5; }
+    
+    .contact-form-box { background: white; border-radius: 20px; padding: 40px; box-shadow: 0 15px 40px rgba(0,0,0,0.04); border: 1.5px solid #f1f5f9; }
+    .contact-form-box h3 { margin: 0 0 25px 0; font-size: 1.6rem; font-weight: 800; color: #1e293b; }
+    
+    .form-group { margin-bottom: 20px; }
+    .form-label { display: block; font-weight: 700; font-size: 0.9rem; color: #1e293b; margin-bottom: 8px; }
+    .form-input, .form-textarea { width: 100%; padding: 14px 18px; border-radius: 12px; border: 1.5px solid #e2e8f0; background: #f8fafc; font-family: 'Poppins', sans-serif; transition: 0.3s; }
+    .form-textarea { height: 140px; resize: none !important; }
+    .form-input:focus, .form-textarea:focus { border-color: #007bff; background: white; outline: none; box-shadow: 0 0 0 4px rgba(0,123,255,0.1); }
+    
+    .btn-submit { background: #007bff; color: white; width: 100%; padding: 14px; border: none; border-radius: 12px; font-weight: 800; font-size: 1rem; cursor: pointer; transition: 0.3s; }
+    .btn-submit:hover { background: #0056b3; transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,123,255,0.2); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-container" style="padding-top: 60px;">
+    <div class="page-banner" style="margin-bottom: 60px;">
+        <div class="banner-shape s1"></div>
+        <div class="banner-shape s2"></div>
+        <div style="position:relative; z-index:1;">
+            <h1 style="font-size: 2.5rem;">Get in Touch</h1>
+            <p style="font-size: 1rem; max-width: 600px;">Have questions about our professional courses or need technical support? We're here to help.</p>
+        </div>
+    </div>
+
+<div class="contact-container">
+    <div class="contact-info">
+        <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 40px; line-height: 1.2;">Let's talk about your future.</h2>
+        
+        <div class="info-item">
+            <div class="info-icon"><i class="fas fa-map-marker-alt"></i></div>
+            <div class="info-text">
+                <h4>Headquarters</h4>
+                <p>DYPTC, Varale, Talegaon<br>Pune, Maharashtra 410507<br>India</p>
+            </div>
+        </div>
+        
+        <div class="info-item">
+            <div class="info-icon"><i class="fas fa-envelope"></i></div>
+            <div class="info-text">
+                <h4>Email Support</h4>
+                <p>support@e-learny.com<br>careers@e-learny.com</p>
+            </div>
+        </div>
+        
+        <div class="info-item">
+            <div class="info-icon"><i class="fas fa-phone-alt"></i></div>
+            <div class="info-text">
+                <h4>Phone Direct</h4>
+                <p>+91 (800) 123-4567<br>Mon-Fri, 9AM-6PM IST</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="contact-form-box">
+        <h3>Send us a message</h3>
+        <form action="{{ url_for('contact') }}" method="POST">
+            <div class="form-group">
+                <label class="form-label">Full Name</label>
+                <input type="text" name="name" class="form-input" placeholder="e.g. John Doe" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Email Address</label>
+                <input type="email" name="email" class="form-input" placeholder="john@example.com" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">How can we help?</label>
+                <textarea name="message" class="form-textarea" placeholder="Describe your inquiry..." required></textarea>
+            </div>
+            <button type="submit" class="btn-submit"><i class="fas fa-paper-plane" style="margin-right: 8px;"></i> Send Message</button>
+        </form>
+    </div>
+    </div>
+</div>
+{% endblock %}

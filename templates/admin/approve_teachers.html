@@ -1,0 +1,105 @@
+{% extends "layout.html" %}
+
+{% block title %}Approve Teachers - e-Learny Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-table {
+        width: 100%; border-collapse: collapse; background: white;
+        border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+        border: 1.5px solid #f1f5f9;
+        margin-bottom: 40px;
+    }
+    .admin-table th { background: #f8fafc; padding: 18px 25px; text-align: left; font-size: 0.8rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1.5px solid #f1f5f9; }
+    .admin-table td { padding: 20px 25px; border-bottom: 1.5px solid #f1f5f9; color: #1e293b; font-size: 0.95rem; font-weight: 600; vertical-align: middle; }
+    
+    .status-badge { display: inline-block; padding: 6px 14px; border-radius: 10px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+    .status-approved { background: #ecfdf5; color: #10b981; }
+    .status-pending { background: #fff7ed; color: #f59e0b; }
+
+    .action-forms { display: flex; gap: 10px; }
+    .btn-admin { padding: 8px 16px; border-radius: 10px; font-weight: 700; font-size: 0.8rem; border: none; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-approve { background: #10b981; color: white; }
+    .btn-approve:hover { background: #059669; }
+    .btn-revoke { background: #f59e0b; color: white; }
+    .btn-revoke:hover { background: #d97706; }
+    .btn-delete { background: #fef2f2; color: #ef4444; }
+    .btn-delete:hover { background: #ef4444; color: white; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="page-banner">
+        <div class="banner-shape s1"></div>
+        <div class="banner-shape s2"></div>
+        <div style="position:relative; z-index:1;">
+            <h1>Instructor Applications</h1>
+            <p>Review, approve, or revoke teaching privileges for instructors on the platform.</p>
+        </div>
+    </div>
+
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>Instructor Name</th>
+                <th>Email Address</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for teacher in teachers %}
+            <tr>
+                <td>
+                    <div style="display:flex; align-items:center; gap: 12px;">
+                        <div style="width: 40px; height: 40px; border-radius: 12px; background: #eff6ff; color: #007bff; display:flex; align-items:center; justify-content:center; font-weight:800; font-size: 1.1rem;">
+                            {{ teacher.username[0]|upper }}
+                        </div>
+                        {{ teacher.username }}
+                    </div>
+                </td>
+                <td style="color: #64748b;">{{ teacher.email }}</td>
+                <td>
+                    {% if teacher.is_approved %}
+                        <span class="status-badge status-approved"><i class="fas fa-check-circle" style="margin-right:4px;"></i> Approved</span>
+                    {% else %}
+                        <span class="status-badge status-pending"><i class="fas fa-clock" style="margin-right:4px;"></i> Pending Review</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="action-forms">
+                        {% if not teacher.is_approved %}
+                            <form action="{{ url_for('admin_teachers') }}" method="POST" style="margin:0;">
+                                <input type="hidden" name="action" value="approve_teacher">
+                                <input type="hidden" name="id" value="{{ teacher.id }}">
+                                <button type="submit" class="btn-admin btn-approve"><i class="fas fa-check"></i> Approve</button>
+                            </form>
+                        {% else %}
+                            <form action="{{ url_for('admin_teachers') }}" method="POST" style="margin:0;">
+                                <input type="hidden" name="action" value="revoke_teacher">
+                                <input type="hidden" name="id" value="{{ teacher.id }}">
+                                <button type="submit" class="btn-admin btn-revoke" onclick="return window.handleConfirm(event, this.form, 'Are you sure you want to revoke this user\'s publishing privileges?')"><i class="fas fa-ban"></i> Revoke</button>
+                            </form>
+                        {% endif %}
+                        
+                        <form action="{{ url_for('admin_teachers') }}" method="POST" style="margin:0;">
+                            <input type="hidden" name="action" value="delete_user">
+                            <input type="hidden" name="id" value="{{ teacher.id }}">
+                            <button type="submit" class="btn-admin btn-delete" onclick="return window.handleConfirm(event, this.form, 'Are you sure you want to completely delete this instructor? This action is irreversible.')"><i class="fas fa-trash-alt"></i></button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="4" style="text-align:center; padding: 60px 20px; color:#94a3b8;">
+                    <i class="fas fa-folder-open" style="font-size: 2.5rem; margin-bottom: 15px; color:#cbd5e1; display:block;"></i>
+                    No instructor applications available.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

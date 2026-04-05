@@ -1,0 +1,258 @@
+{% extends "layout.html" %}
+
+{% block title %}Add Course - Step 1/2 - e-Learny{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-container {
+        padding: 40px 0 100px;
+        width: 92%; max-width: 1100px;
+        margin: 0 auto;
+        font-family: 'Poppins', sans-serif;
+    }
+    
+    .course-identity-grid {
+        display: grid;
+        grid-template-columns: 350px 1fr;
+        gap: 30px;
+        align-items: start;
+    }
+    @media (max-width: 900px) { .course-identity-grid { grid-template-columns: 1fr; } }
+
+    .identity-card {
+        background: white;
+        padding: 30px;
+        border-radius: 20px;
+        border: 1.5px solid #f1f5f9;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .identity-card:hover { transform: translateY(-3px); box-shadow: 0 15px 40px rgba(0,0,0,0.06); }
+
+    .step-header { margin-bottom: 30px; }
+    .step-header h1 { font-size: 1.8rem; font-weight: 800; color: #1e293b; margin: 0 0 5px; }
+    .step-header p { font-size: 0.9rem; color: #64748b; }
+
+    .form-group { margin-bottom: 25px; position: relative; }
+    .form-group label { display: block; font-size: 0.85rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px; }
+    .form-group label span { color: #ef4444; margin-left: 2px; }
+
+    .admin-input, .admin-textarea {
+        width: 100%; padding: 15px 20px; border-radius: 12px; border: 1.5px solid #f1f5f9;
+        background: #f8fafc; font-size: 0.95rem; color: #1e293b; font-family: 'Poppins', sans-serif;
+        transition: all 0.3s ease;
+    }
+    .admin-textarea { resize: none; overflow: hidden; height: 120px; }
+    .admin-input:focus, .admin-textarea:focus { border-color: #007bff; background: white; outline: none; box-shadow: 0 5px 15px rgba(0,123,255,0.08); }
+
+    /* Custom Dropdown Styling */
+    .cd-dd { position: relative; width: 100%; cursor: pointer; user-select: none; }
+    .cd-dd-box {
+        padding: 15px 20px; border-radius: 12px; border: 1.5px solid #f1f5f9;
+        background: #f8fafc; font-size: 0.95rem; color: #1e293b;
+        display: flex; justify-content: space-between; align-items: center;
+        transition: 0.3s;
+    }
+    .cd-dd.active .cd-dd-box { border-color: #007bff; background: white; box-shadow: 0 5px 15px rgba(0,123,255,0.05); }
+    .cd-dd-box i { font-size: 0.8rem; color: #94a3b8; transition: 0.3s; }
+    .cd-dd.active .cd-dd-box i { transform: rotate(180deg); color: #007bff; }
+
+    .cd-dd-list {
+        position: absolute; top: calc(100% + 8px); left: 0; right: 0;
+        background: white; border-radius: 12px; border: 1.5px solid #f1f5f9;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+        padding: 8px; z-index: 100;
+        opacity: 0; visibility: hidden; transform: translateY(10px);
+        transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .cd-dd.active .cd-dd-list { opacity: 1; visibility: visible; transform: translateY(0); }
+    .cd-dd-item {
+        padding: 12px 16px; border-radius: 8px; font-size: 0.9rem; font-weight: 600;
+        color: #475569; transition: 0.2s;
+    }
+    .cd-dd-item:hover { background: #f0f7ff; color: #007bff; }
+    .cd-dd-item.selected { background: #eff6ff; color: #007bff; }
+
+    .thumb-pre-box {
+        width: 100%; height: 220px; border-radius: 16px; background: #f8fafc;
+        border: 2px dashed #e2e8f0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+        cursor: pointer; transition: 0.3s; overflow: hidden; position: relative;
+    }
+    .thumb-pre-box:hover { border-color: #007bff; background: #f0f7ff; transform: scale(1.02); }
+    .thumb-pre-box img { width: 100%; height: 100%; object-fit: cover; }
+    
+    .upload-overlay {
+        position: absolute; inset:0; background: rgba(0, 123, 255, 0.7);
+        color: white; display: none; flex-direction: column; align-items: center; justify-content: center;
+        font-weight: 800; font-size: 0.85rem; letter-spacing: 0.5px; opacity: 0; transition: 0.3s;
+    }
+    .thumb-pre-box:hover .upload-overlay { opacity: 1; display: flex; }
+    .upload-indicator {
+        margin-top: 10px; padding: 10px; background: #eff6ff; color: #007bff; 
+        border-radius: 12px; font-weight: 800; font-size: 0.75rem; text-align: center;
+        display: none; border: 1.5px solid #dbeafe;
+    }
+
+    .btn-admin-primary {
+        width: 100%; background: #007bff; color: white; border: none; padding: 18px;
+        border-radius: 14px; font-weight: 800; font-size: 1rem; cursor: pointer;
+        display: flex; align-items: center; justify-content: center; gap: 10px;
+        transition: 0.3s; margin-top: 10px; box-shadow: 0 10px 20px rgba(0,123,255,0.15);
+        font-family: 'Poppins', sans-serif;
+    }
+    .btn-admin-primary:hover { background: #0056b3; transform: translateY(-3px); box-shadow: 0 15px 30px rgba(0,123,255,0.25); }
+
+    .step-dots { display: flex; gap: 8px; margin-bottom: 25px; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; background: #e2e8f0; }
+    .dot.active { background: #007bff; width: 30px; border-radius: 10px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="step-header">
+        <h1>Course Builder</h1>
+        <p>Step 1 of 2: Define your core metadata and branding.</p>
+    </div>
+
+    <div class="step-dots">
+        <div class="dot active"></div>
+        <div class="dot"></div>
+    </div>
+
+    <form action="{{ url_for('add_course') }}" method="POST" enctype="multipart/form-data" id="identityForm">
+        <div class="course-identity-grid">
+            <!-- Left Card: Branding -->
+            <div class="identity-card">
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label>Course Thumbnail<span>*</span></label>
+                    <div class="thumb-pre-box" id="dropZone" onclick="document.getElementById('thumbImgInp').click()">
+                        <img id="prevImgBox" style="display:none">
+                        <div id="uploadPrompt">
+                            <i class="fas fa-image" style="font-size: 2rem; color: #cbd5e1; margin-bottom: 10px;"></i>
+                            <span style="font-size: 0.75rem; color:#94a3b8; font-weight:700;">Click to Upload Image</span>
+                        </div>
+                        <div class="upload-overlay" id="changeOverlay">
+                            <i class="fas fa-sync-alt" style="font-size: 1.4rem; margin-bottom: 8px;"></i>
+                            <span>CHANGE IMAGE</span>
+                        </div>
+                    </div>
+                </div>
+                <input type="file" name="thumbnail" id="thumbImgInp" accept="image/*" style="display:none" onchange="previewImg(this)" required>
+                
+                <div id="uIndicator" class="upload-indicator">
+                    <i class="fas fa-check-circle" style="margin-right: 5px;"></i> Image Successfully Uploaded
+                </div>
+
+                <div style="background:#f0f7ff; color:#007bff; padding:15px; border-radius:12px; font-size:0.75rem; font-weight:700; line-height:1.4; margin-top: 15px;">
+                    <i class="fas fa-info-circle" style="margin-right:5px;"></i> Recommended ratio: 16:9 for consistent layout across learner dashboards.
+                </div>
+            </div>
+
+            <!-- Right Card: Info -->
+            <div class="identity-card">
+                <div class="form-group">
+                    <label>Professional Title<span>*</span></label>
+                    <input type="text" name="title" class="admin-input" placeholder="e.g. Advanced SQL for Data Architects" required>
+                </div>
+
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:20px;">
+                    <!-- Custom Category Dropdown -->
+                    <div class="form-group" style="min-width: 0;">
+                        <label>Target Category<span>*</span></label>
+                        <div class="cd-dd" id="catDD">
+                            <input type="hidden" name="category" id="catInput" value="frontend">
+                            <div class="cd-dd-box" id="catBox">
+                                <span>Frontend Engineering</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <div class="cd-dd-list">
+                                <div class="cd-dd-item selected" data-val="frontend">Frontend Engineering</div>
+                                <div class="cd-dd-item" data-val="backend">Backend Systems</div>
+                                <div class="cd-dd-item" data-val="database">Database Management</div>
+                                <div class="cd-dd-item" data-val="cloud">Cloud Computing</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Custom Difficulty Dropdown -->
+                    <div class="form-group" style="min-width: 0;">
+                        <label>Difficulty<span>*</span></label>
+                        <div class="cd-dd" id="diffDD">
+                            <input type="hidden" name="level" id="diffInput" value="Beginner">
+                            <div class="cd-dd-box" id="diffBox">
+                                <span>Beginner</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <div class="cd-dd-list">
+                                <div class="cd-dd-item selected" data-val="Beginner">Beginner</div>
+                                <div class="cd-dd-item" data-val="Intermediate">Intermediate</div>
+                                <div class="cd-dd-item" data-val="Advanced">Advanced</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Course Objective<span>*</span></label>
+                    <textarea name="description" class="admin-textarea" placeholder="Distill the core outcome of this course..." required></textarea>
+                </div>
+
+                <button type="submit" class="btn-admin-primary">
+                    Next: Construct Curriculum <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    // Image Preview Logic
+    function previewImg(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('prevImgBox').src = e.target.result;
+                document.getElementById('prevImgBox').style.display = 'block';
+                document.getElementById('uploadPrompt').style.display = 'none';
+                document.getElementById('uIndicator').style.display = 'block';
+                document.getElementById('dropZone').style.borderColor = '#007bff';
+                document.getElementById('dropZone').style.borderStyle = 'solid';
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    // Custom Dropdown Logic
+    function initDropdown(ddId, inputId, boxId) {
+        const dd = document.getElementById(ddId);
+        const box = document.getElementById(boxId);
+        const input = document.getElementById(inputId);
+        const items = dd.querySelectorAll('.cd-dd-item');
+
+        box.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dd.classList.toggle('active');
+        });
+
+        items.forEach(item => {
+            item.addEventListener('click', () => {
+                input.value = item.dataset.val;
+                box.querySelector('span').textContent = item.textContent;
+                items.forEach(i => i.classList.remove('selected'));
+                item.classList.add('selected');
+                dd.classList.remove('active');
+            });
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initDropdown('catDD', 'catInput', 'catBox');
+        initDropdown('diffDD', 'diffInput', 'diffBox');
+
+        window.addEventListener('click', () => {
+            document.querySelectorAll('.cd-dd').forEach(dd => dd.classList.remove('active'));
+        });
+    });
+</script>
+{% endblock %}

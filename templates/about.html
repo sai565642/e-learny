@@ -1,0 +1,98 @@
+{% extends "layout.html" %}
+
+{% block title %}About Us - e-Learny{% endblock %}
+
+{% block extra_css %}
+<style>
+    .about-section { max-width: 1000px; margin: 40px auto 100px; padding: 0 20px; }
+    
+    .about-card { background: white; border-radius: 20px; padding: 50px; box-shadow: 0 15px 40px rgba(0,0,0,0.04); border: 1.5px solid #f1f5f9; text-align: center; }
+    .about-card h2 { font-size: 2.5rem; font-weight: 800; color: #1e293b; margin-bottom: 25px; line-height: 1.2; letter-spacing: -1px; }
+    .about-card p { font-size: 1.1rem; color: #475569; line-height: 1.8; margin-bottom: 30px; }
+    
+    .mission-box { background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 16px; padding: 40px; margin-top: 40px; text-align: left; display: flex; gap: 30px; align-items: flex-start; }
+    @media(max-width: 700px) { .mission-box { flex-direction: column; } }
+    .mission-icon { width: 80px; height: 80px; background: #eff6ff; color: #007bff; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 2rem; flex-shrink: 0; }
+    
+    .stats-row { display: flex; justify-content: center; gap: 40px; margin-top: 60px; padding-top: 50px; border-top: 1.5px solid #f1f5f9; flex-wrap: wrap;}
+    .stat-item { text-align: center; }
+    .stat-item h3 { font-size: 2.5rem; font-weight: 800; color: #007bff; margin: 0 0 10px 0; }
+    .stat-item p { font-size: 0.95rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin: 0; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-container" style="padding-top: 60px;">
+    <div class="page-banner" style="margin-bottom: 60px;">
+        <div class="banner-shape s1"></div>
+        <div class="banner-shape s2"></div>
+        <div style="position:relative; z-index:1;">
+            <h1 style="font-size: 2.5rem;">Our Story</h1>
+            <p style="font-size: 1rem; max-width: 600px;">Democratizing professional tech education for everyone, everywhere. We build more than careers—we build the future of engineering.</p>
+        </div>
+    </div>
+
+<div class="about-section" style="max-width: 1200px;">
+    <div style="text-align: center; margin-bottom: 60px;">
+        <span style="background: #eff6ff; color: #007bff; padding: 8px 20px; border-radius: 100px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 2px;">Our DNA</span>
+        <h2 style="font-size: 2.8rem; font-weight: 950; color: #1e293b; margin: 20px 0 10px; letter-spacing: -2px;">The Architecture of Excellence</h2>
+        <p style="color: #64748b; font-size: 1.1rem; max-width: 700px; margin: 0 auto; line-height: 1.6;">We don't just provide courses; we design comprehensive career paths for the next generation of engineers.</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; margin-bottom: 80px;">
+        <div class="about-card" style="padding: 45px; text-align: left; background: white; border-radius: 28px; box-shadow: 0 10px 30px rgba(0,0,0,0.02);">
+            <div style="width: 60px; height: 60px; background: #eff6ff; color: #007bff; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 25px;">
+                <i class="fas fa-layer-group"></i>
+            </div>
+            <h3 style="font-size: 1.4rem; font-weight: 850; color: #1e293b; margin-bottom: 15px;">Elite Curriculum</h3>
+            <p style="font-size: 0.95rem; color: #64748b; line-height: 1.7;">Deeply technical content focused on raw implementation and system scalability, not just surface-level syntax.</p>
+        </div>
+
+        <div class="about-card" style="padding: 45px; text-align: left; background: white; border-radius: 28px; box-shadow: 0 10px 30px rgba(0,0,0,0.02);">
+            <div style="width: 60px; height: 60px; background: #fff7ed; color: #f97316; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 25px;">
+                <i class="fas fa-user-tie"></i>
+            </div>
+            <h3 style="font-size: 1.4rem; font-weight: 850; color: #1e293b; margin-bottom: 15px;">Industry Mentors</h3>
+            <p style="font-size: 0.95rem; color: #64748b; line-height: 1.7;">Learn directly from senior engineers at premier tech companies who bring real-world chaos to your screen.</p>
+        </div>
+
+        <div class="about-card" style="padding: 45px; text-align: left; background: white; border-radius: 28px; box-shadow: 0 10px 30px rgba(0,0,0,0.02);">
+            <div style="width: 60px; height: 60px; background: #fdf2f8; color: #db2777; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 25px;">
+                <i class="fas fa-microchip"></i>
+            </div>
+            <h3 style="font-size: 1.4rem; font-weight: 850; color: #1e293b; margin-bottom: 15px;">Edge Technology</h3>
+            <p style="font-size: 0.95rem; color: #64748b; line-height: 1.7;">Our syllabus evolves as fast as the tech stack, ensuring you mastery over tools that matter tomorrow.</p>
+        </div>
+    </div>
+
+    <div class="mission-box" style="margin-top: 0; background: white; padding: 50px; border-radius: 32px; box-shadow: 0 15px 40px rgba(0,0,0,0.03); display: flex; gap: 40px; align-items: center;">
+        <div class="mission-icon" style="flex-shrink:0; width: 100px; height: 100px; background: var(--primary-gradient); color: white; border-radius: 30px; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; box-shadow: 0 15px 30px rgba(0,123,255,0.25);">
+            <i class="fas fa-shield-alt"></i>
+        </div>
+        <div>
+            <h3 style="margin: 0 0 15px 0; font-size: 1.8rem; font-weight: 900; color: #1e293b; letter-spacing: -0.5px;">The e-Learny Guarantee</h3>
+            <p style="margin: 0; font-size: 1.1rem; color: #475569; line-height: 1.8;">We maintain a strictly high-density learning standard. Every module is verified for technical accuracy and practical relevance. We bridge the gap between "learning to code" and "engineering systems."</p>
+        </div>
+    </div>
+
+    <div class="stats-row" style="border: none; background: #f8fafc; padding: 60px 40px; border-radius: 42px; margin-top: 80px; display: flex; justify-content: space-around; flex-wrap: wrap; gap: 40px;">
+        <div class="stat-item" style="text-align: center;">
+            <h3 style="font-size: 3rem; font-weight: 950; color: #007bff; margin: 0 0 10px 0;">50K+</h3>
+            <p style="font-size: 0.85rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 2px;">Global Scholars</p>
+        </div>
+        <div class="stat-item" style="text-align: center;">
+            <h3 style="font-size: 3rem; font-weight: 950; color: #007bff; margin: 0 0 10px 0;">200+</h3>
+            <p style="font-size: 0.85rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 2px;">System Architects</p>
+        </div>
+        <div class="stat-item" style="text-align: center;">
+            <h3 style="font-size: 3rem; font-weight: 950; color: #007bff; margin: 0 0 10px 0;">350+</h3>
+            <p style="font-size: 0.85rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 2px;">Deep Curriculums</p>
+        </div>
+        <div class="stat-item" style="text-align: center;">
+            <h3 style="font-size: 3rem; font-weight: 950; color: #007bff; margin: 0 0 10px 0;">100%</h3>
+            <p style="font-size: 0.85rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 2px;">Open Source</p>
+        </div>
+    </div>
+</div>
+</div>
+{% endblock %}

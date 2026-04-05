@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}e-Learny{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Montserrat:wght@600;800&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base_styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; }
+        :root { --primary-gradient: linear-gradient(135deg, #007bff 0%, #0056b3 100%); }
+        header {
+            background: #ffffff;
+            box-shadow: 0 2px 14px rgba(0,0,0,0.06);
+            padding: 24px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .nav-container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo a {
+            font-family: 'Poppins', sans-serif;
+            font-size: 24px;
+            font-weight: 800;
+            color: #007bff;
+            text-decoration: none;
+            letter-spacing: -1px;
+        }
+        .nav-links {
+            display: flex;
+            gap: 25px;
+            align-items: center;
+        }
+        .nav-links > a {
+            text-decoration: none;
+            color: #444;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: color 0.3s;
+            font-family: 'Poppins', sans-serif;
+        }
+        .nav-links > a:hover {
+            color: #007bff;
+        }
+        .nav-links > a.active {
+            color: #007bff;
+        }
+        .auth-buttons {
+            display: flex;
+            gap: 12px;
+        }
+        .btn-outline {
+            padding: 9px 24px;
+            border: 1.5px solid #007bff;
+            color: #007bff;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            font-family: 'Poppins', sans-serif;
+        }
+        .btn-outline:hover {
+            background: #007bff;
+            color: #fff !important;
+            transform: translateY(-1px);
+        }
+        .btn-solid {
+            padding: 11px 26px;
+            background: #007bff;
+            color: #fff !important;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            border: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
+            font-family: 'Poppins', sans-serif;
+        }
+        .btn-solid:hover {
+            transform: scale(1.02);
+            color: #fff !important;
+        }
+        .flashes {
+            list-style: none;
+            padding: 0;
+            margin: 10px 0;
+            text-align: center;
+        }
+        body {
+            font-family: 'Poppins', sans-serif !important;
+            background-color: #f8fafc !important; margin: 0; min-height: 100vh; display: flex; flex-direction: column;
+        }
+        .flashes li {
+            padding: 10px;
+            background: #d4edda;
+            color: #155724;
+            border-radius: 4px;
+            margin-bottom: 5px;
+        }
+        main {
+            padding: 0 !important;
+            flex-grow: 1;
+        }
+        .btn-submit {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(8px); display: none; align-items: center;
+            justify-content: center; z-index: 9999; opacity: 0; transition: 0.3s;
+        }
+        .modal-card {
+            background: white; width: 90%; max-width: 400px;
+            border-radius: 28px; padding: 35px; text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+            transform: scale(0.9); transition: 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .modal-overlay.active { display: flex; opacity: 1; }
+        .modal-overlay.active .modal-card { transform: scale(1); }
+        
+        .modal-icon {
+            width: 70px; height: 70px; border-radius: 22px;
+            background: #fef2f2; color: #ef4444; font-size: 1.8rem;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 20px;
+        }
+        .modal-title { font-size: 1.3rem; font-weight: 800; color: #1e293b; margin-bottom: 10px; }
+        .modal-body { color: #64748b; font-size: 0.95rem; line-height: 1.6; margin-bottom: 30px; }
+        .modal-actions { display: flex; gap: 12px; }
+        .modal-btn {
+            flex: 1; padding: 14px; border-radius: 16px; font-weight: 700;
+            font-size: 0.9rem; border: none; cursor: pointer; transition: 0.2s;
+        }
+        .btn-cancel { background: #f1f5f9; color: #475569; }
+        .btn-cancel:hover { background: #e2e8f0; }
+        .btn-confirm-delete { background: #ef4444; color: white; box-shadow: 0 8px 16px rgba(239, 68, 68, 0.2); }
+        .btn-confirm-delete:hover { background: #dc2626; transform: translateY(-1px); }
+        .btn-confirm-success { background: #10b981; color: white; box-shadow: 0 8px 16px rgba(16, 185, 129, 0.2); }
+        .btn-confirm-success:hover { background: #059669; transform: translateY(-1px); }
+
+        .profile-entry-group {
+            display: flex; align-items: center; gap: 12px;
+            padding: 5px 8px; border-radius: 16px; cursor: pointer;
+            position: relative; transition: 0.3s;
+            user-select: none;
+        }
+        .profile-entry-group:hover { background: #f8fafc; }
+
+        .profile-text-info { text-align: right; }
+        .user-nav-name { 
+            display: block; font-size: 0.775rem; font-weight: 800; 
+            color: #1e293b; text-transform: uppercase; line-height: 1.1;
+            letter-spacing: -0.2px; font-family: 'Poppins', sans-serif;
+        }
+        .user-nav-role { 
+            display: block; font-size: 0.72rem; font-weight: 800; 
+            color: #007bff; text-transform: uppercase; margin-top: 3px;
+            letter-spacing: 0.2px;
+        }
+
+        .profile-avatar-box {
+            width: 45px; height: 45px; border-radius: 12px;
+            background: #ffffff; position: relative; overflow: hidden;
+            border: 2px solid #eef2f3; transition: 0.2s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .profile-avatar-box img { width: 100%; height: 100%; object-fit: cover; }
+        .profile-avatar-box i { font-size: 1.4rem; color: #cbd5e1; }
+        .profile-entry-group:hover .profile-avatar-box { border-color: #007bff; }
+
+        .profile-hover-menu {
+            position: absolute; top: calc(100% + 10px); right: 0;
+            background: white; min-width: 190px; border-radius: 18px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+            padding: 8px; opacity: 0; visibility: hidden;
+            transform: translateY(10px); transition: all 0.3s;
+            z-index: 2000; list-style: none; margin: 0;
+            border: 1px solid #f1f5f9;
+        }
+        .profile-entry-group:hover .profile-hover-menu {
+            opacity: 1; visibility: visible; transform: translateY(0);
+        }
+
+        .profile-hover-menu a {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 16px; border-radius: 12px;
+            color: #475569; text-decoration: none !important; font-size: 0.85rem;
+            font-weight: 700; transition: 0.2s;
+        }
+        .profile-hover-menu a:hover { background: #f0f7ff; color: #007bff; }
+        .profile-hover-menu a i { font-size: 0.95rem; width: 18px; text-align: center; color: #94a3b8; }
+        .profile-hover-menu .logout-link { color: #ef4444 !important; }
+        .profile-hover-menu .logout-link:hover { background: #fef2f2 !important; }
+
+        .nav-links a {
+            text-decoration: none !important;
+            color: #444;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: color 0.3s;
+            font-family: 'Poppins', sans-serif;
+        }
+        .nav-links a:hover, .nav-links a.active {
+            color: #007bff;
+        }
+        
+        .page-banner {
+            background: var(--primary-gradient);
+            border-radius: 22px; padding: 34px 48px; color: white;
+            margin-bottom: 32px; position: relative; overflow: hidden;
+            box-shadow: 0 20px 48px rgba(0,123,255,0.22);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .page-banner h1 { font-size: 1.7rem; font-weight: 850; margin: 0 0 8px; letter-spacing: -0.6px; }
+        .page-banner p  { opacity: 0.9; margin: 0; font-size: 0.88rem; max-width: 500px; line-height: 1.5; }
+        .banner-shape { position: absolute; background: rgba(255,255,255,0.07); border-radius: 50%; pointer-events: none; }
+        .s1 { width: 300px; height: 300px; top: -100px; right: -60px; }
+        .s2 { width: 140px; height: 140px; bottom: -50px; left: 10%; }
+        .admin-container { padding: 40px 0 150px; width: 92%; max-width: 1200px; margin: 0 auto; }
+        
+        /* Flash Styles */
+        .flash-item.success { background: #ecfdf5; color: #10b981; border: 1.5px solid #d1fae5; }
+        .flash-item.error, .flash-item.danger { background: #fef2f2; color: #ef4444; border: 1.5px solid #fee2e2; }
+        .flash-item.warning { background: #fdf6ec; color: #f59e0b; border: 1.5px solid #fef3c7; }
+        .flash-item.info { background: #eff6ff; color: #007bff; border: 1.5px solid #dbeafe; }
+
+        /* --- RESPONSIVE OVERRIDES --- */
+        .menu-toggle { display: none; cursor: pointer; font-size: 1.5rem; color: #1e293b; transition: 0.3s; }
+
+        @media(max-width: 1024px) {
+            .menu-toggle { display: block; }
+            .nav-links {
+                position: fixed; top: 0; right: -100%; width: 280px; height: 100vh;
+                background: white; flex-direction: column; align-items: flex-start;
+                padding: 100px 30px; gap: 30px; transition: 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+                box-shadow: -15px 0 40px rgba(0,0,0,0.05); z-index: 2000; overflow-y: auto;
+            }
+            .nav-links.active { right: 0; }
+            .nav-links > a, .main-nav-group > a { font-size: 1.1rem !important; }
+            .main-nav-group { flex-direction: column; align-items: flex-start !important; gap: 30px !important; width: 100%; }
+            .profile-entry-group { width: 100%; justify-content: space-between; border-top: 1px solid #f1f5f9; padding-top: 30px; }
+            .profile-text-info { text-align: left; }
+            .profile-hover-menu { position: static; opacity: 1; visibility: visible; box-shadow: none; border: none; padding: 0; margin-top: 15px; transform: none; width: 100%; display: none; }
+            .profile-entry-group.active-menu .profile-hover-menu { display: block; }
+        }
+
+        @media(max-width: 768px) {
+            .page-banner { flex-direction: column; text-align: center; gap: 20px; padding: 30px 20px; }
+            .page-banner p { margin-left: auto; margin-right: auto; }
+            .admin-container { width: 94%; padding-top: 30px; }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <header>
+        <div class="nav-container">
+            <div class="logo">
+                <a href="{{ url_for('index') }}" style="display: flex; align-items: center; gap: 12px; text-decoration: none;">
+                    <i class="fas fa-graduation-cap" style="font-size: 2rem; color: #007bff;"></i> 
+                    <span style="font-size: 1.6rem; font-weight: 850; color: #007bff; letter-spacing: -1.2px;">e-Learny</span>
+                </a>
+            </div>
+
+            <div class="menu-toggle" id="mobile-menu-btn">
+                <i class="fas fa-bars"></i>
+            </div>
+            
+            <div class="nav-links">
+                {% if user %}
+                    <div class="main-nav-group" style="display: flex; align-items: center; gap: 28px;">
+                        {% if user.is_superuser %}
+                            <a href="{{ url_for('admin_dashboard') }}" class="{{ 'active' if request.endpoint == 'admin_dashboard' else '' }}">Dashboard</a>
+                            <a href="{{ url_for('admin_users') }}" class="{{ 'active' if request.endpoint == 'admin_users' else '' }}">All Users</a>
+                            <a href="{{ url_for('admin_teachers') }}" class="{{ 'active' if request.endpoint == 'admin_teachers' else '' }}">Approve Teachers</a>
+                            <a href="{{ url_for('admin_courses') }}" class="{{ 'active' if request.endpoint == 'admin_courses' else '' }}">All Courses</a>
+                            <a href="{{ url_for('admin_support') }}" class="{{ 'active' if request.endpoint == 'admin_support' else '' }}">Support Messages</a>
+                        {% elif profile and profile.occupational_status == 'Teacher' %}
+                            <a href="{{ url_for('dashboard') }}" class="{{ 'active' if request.endpoint == 'dashboard' else '' }}">Dashboard</a>
+                            <a href="{{ url_for('all_courses') }}" class="{{ 'active' if request.endpoint == 'all_courses' else '' }}">All Courses</a>
+                            {% if profile.is_approved %}
+                                <a href="{{ url_for('add_course') }}" class="{{ 'active' if request.endpoint == 'add_course' else '' }}">Add Courses</a>
+                                <a href="{{ url_for('enrollments') }}" class="{{ 'active' if request.endpoint == 'enrollments' else '' }}">Enrollments</a>
+                            {% endif %}
+                        {% else %}
+                            <a href="{{ url_for('dashboard') }}" class="{{ 'active' if request.endpoint == 'dashboard' else '' }}">Dashboard</a>
+                            <a href="{{ url_for('all_courses') }}" class="{{ 'active' if request.endpoint == 'all_courses' else '' }}">All Courses</a>
+                            <a href="{{ url_for('my_courses') }}" class="{{ 'active' if request.endpoint == 'my_courses' else '' }}">My Courses</a>
+                        {% endif %}
+                    </div>
+
+                    <div style="width: 1px; height: 35px; background: #e2e8f0; margin: 0 10px;"></div>
+
+                    <div class="profile-entry-group">
+                        <div class="profile-text-info">
+                            <span class="user-nav-name">
+                                {% if user.first_name %}{{ user.first_name }} {{ user.last_name }}{% else %}{{ user.username }}{% endif %}
+                            </span>
+                            <span class="user-nav-role">
+                                {% if user.is_superuser %}ADMIN{% elif profile.occupational_status == 'Teacher' %}INSTRUCTOR{% else %}STUDENT{% endif %}
+                            </span>
+                        </div>
+                        <div class="profile-avatar-box">
+                            {% if profile and profile.profile_pic %}
+                                <img src="{{ url_for('static', filename='uploads/' + profile.profile_pic) }}" alt="P">
+                            {% else %}
+                                <i class="fas fa-user-circle"></i>
+                            {% endif %}
+                        </div>
+
+                        <ul class="profile-hover-menu">
+                            <li>
+                                {% if user.is_superuser %}
+                                    <a href="{{ url_for('admin_profile') }}"><i class="fas fa-user-shield"></i> Admin Profile</a>
+                                {% else %}
+                                    <a href="{{ url_for('profile') }}"><i class="fas fa-user-circle"></i> My Profile</a>
+                                {% endif %}
+                            </li>
+                            <li><hr style="border: none; border-top: 1px solid #f1f5f9; margin: 8px 0;"></li>
+                            <li>
+                                <a href="{{ url_for('logout') }}" class="logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                            </li>
+                        </ul>
+                    </div>
+
+                {% else %}
+                    <a href="{{ url_for('index') }}" class="{{ 'active' if request.endpoint == 'index' else '' }}">Home</a>
+                    <a href="{{ url_for('contact') }}" class="{{ 'active' if request.endpoint == 'contact' else '' }}">Contact Us</a>
+                    <div class="auth-buttons">
+                        <a href="{{ url_for('login') }}" class="btn-outline">Login</a>
+                        <a href="{{ url_for('register') }}" class="btn-solid">Register</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <main>
+        {# Top flash messages removed as per user request to clean up the UI #}
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer style="background: #ffffff; color: #333; padding: 60px 0 30px 0; font-family: 'Poppins', sans-serif; border-top: 1px solid #f2f2f2; text-align: center;">
+        <div class="container">
+            <h3 style="color: #007bff; margin-bottom: 25px; font-weight: 950; font-size: 2.2rem; display: flex; align-items: center; justify-content: center; gap: 15px; letter-spacing: -1.5px;">
+                <i class="fas fa-graduation-cap" style="font-size: 2.8rem;"></i> e-Learny
+            </h3>
+            <p style="opacity: 0.7; line-height: 1.6; font-size: 0.85rem; max-width: 600px; margin: 0 auto 25px;">Empowering students worldwide with practical tech skills and industry-recognized certifications.</p>
+            
+            <div style="margin-bottom: 25px; font-size: 0.9rem; font-weight: 600;">
+                <a href="{{ url_for('index') }}" style="color: #333; text-decoration: none; margin: 0 15px;">Home</a>
+                <a href="{{ url_for('all_courses') }}" style="color: #333; text-decoration: none; margin: 0 15px;">All Courses</a>
+                <a href="{{ url_for('about') }}" style="color: #333; text-decoration: none; margin: 0 15px;">About Us</a>
+                <a href="{{ url_for('contact') }}" style="color: #333; text-decoration: none; margin: 0 15px;">Contact Us</a>
+            </div>
+
+            <div style="font-size: 20px; display: flex; gap: 20px; justify-content: center; margin-bottom: 30px;">
+                <a href="https://facebook.com" target="_blank" style="color: #333;"><i class="fab fa-facebook"></i></a>
+                <a href="https://twitter.com" target="_blank" style="color: #333;"><i class="fab fa-twitter"></i></a>
+                <a href="https://instagram.com" target="_blank" style="color: #333;"><i class="fab fa-instagram"></i></a>
+                <a href="https://linkedin.com" target="_blank" style="color: #333;"><i class="fab fa-linkedin"></i></a>
+            </div>
+
+            <div style="border-top: 1px solid #f0f0f0; padding-top: 25px; opacity: 0.6; font-size: 0.8rem;">
+                <p>&copy; <span id="year"></span> e-Learny. All Rights Reserved. (SAI Coder)</p>
+                <script>
+                    document.getElementById('year').textContent = new Date().getFullYear();
+                    
+                    // Mobile Menu Logic
+                    const menuBtn = document.getElementById('mobile-menu-btn');
+                    const navLinks = document.querySelector('.nav-links');
+                    const profileEntry = document.querySelector('.profile-entry-group');
+
+                    if(menuBtn) {
+                        menuBtn.addEventListener('click', () => {
+                            navLinks.classList.toggle('active');
+                            const icon = menuBtn.querySelector('i');
+                            icon.classList.toggle('fa-bars');
+                            icon.classList.toggle('fa-times');
+                        });
+                    }
+
+                    if(profileEntry) {
+                        profileEntry.addEventListener('click', (e) => {
+                            if(window.innerWidth <= 1024) {
+                                profileEntry.classList.toggle('active-menu');
+                            }
+                        });
+                    }
+                </script>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Success Flashes as Modals -->
+    <div style="display: none;">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <span class="flash-data" data-category="{{ category }}" data-message="{{ message }}"></span>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal-card">
+            <div class="modal-icon"><i class="fas fa-exclamation-triangle"></i></div>
+            <h3 class="modal-title" id="modalTitle">Confirm Action</h3>
+            <p class="modal-body" id="modalBody">Are you sure you want to proceed with this destructive action? This cannot be undone.</p>
+            <div class="modal-actions">
+                <button class="modal-btn btn-cancel" onclick="closeModal()">Cancel</button>
+                <button class="modal-btn btn-confirm-delete" id="confirmBtn">Confirm & Proceed</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentCallback = null;
+
+        /**
+         * Custom Modern Confirmation
+         * @param {string} title
+         * @param {string} message
+         * @param {Function} callback
+         */
+        window.customConfirm = function(title, message, callback) {
+            resetModal();
+            document.getElementById('modalTitle').textContent = title || 'Confirm Action';
+            document.getElementById('modalBody').textContent = message || 'Are you sure?';
+            currentCallback = callback;
+            
+            const modal = document.getElementById('confirmModal');
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('active'), 10);
+        };
+
+        window.customAlert = function(title, message, type = 'success') {
+            resetModal();
+            const modal = document.getElementById('confirmModal');
+            const iconWrap = modal.querySelector('.modal-icon');
+            const icon = iconWrap.querySelector('i');
+            const confirmBtn = document.getElementById('confirmBtn');
+            const cancelBtn = modal.querySelector('.btn-cancel');
+
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalBody').textContent = message;
+            cancelBtn.style.display = 'none';
+
+            if(type === 'success') {
+                icon.className = 'fas fa-check-circle';
+                iconWrap.style.background = '#ecfdf5';
+                iconWrap.style.color = '#10b981';
+                confirmBtn.className = 'modal-btn btn-confirm-success';
+                confirmBtn.textContent = 'Awesome!';
+            }
+            
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('active'), 10);
+        };
+
+        function resetModal() {
+            const modal = document.getElementById('confirmModal');
+            const iconWrap = modal.querySelector('.modal-icon');
+            const icon = iconWrap.querySelector('i');
+            const confirmBtn = document.getElementById('confirmBtn');
+            const cancelBtn = modal.querySelector('.btn-cancel');
+
+            icon.className = 'fas fa-exclamation-triangle';
+            iconWrap.style.background = '#fef2f2';
+            iconWrap.style.color = '#ef4444';
+            confirmBtn.className = 'modal-btn btn-confirm-delete';
+            confirmBtn.textContent = 'Confirm & Proceed';
+            cancelBtn.style.display = 'block';
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('confirmModal');
+            modal.classList.remove('active');
+            setTimeout(() => {
+                modal.style.display = 'none';
+                currentCallback = null;
+            }, 300);
+        }
+
+        window.onload = function() {
+            const flashes = document.querySelectorAll('.flash-data');
+            flashes.forEach(f => {
+                const msg = f.dataset.message;
+                // Only trigger Popup for the 3 user-specified milestones
+                if(msg.includes("Course published!") || msg.includes("Successfully enrolled!") || msg.includes("Mastery Attained!")) {
+                    window.customAlert('Success!', msg, 'success');
+                }
+            });
+        };
+
+        // Global Form Handler Intercept
+        window.handleConfirm = function(event, form, message) {
+            if (form.dataset.confirmed) return true;
+            
+            event.preventDefault();
+            window.customConfirm('Verification Required', message, () => {
+                form.dataset.confirmed = "true";
+                form.submit();
+            });
+            return false;
+        };
+
+        document.getElementById('confirmBtn').onclick = () => {
+            if (currentCallback) currentCallback();
+            closeModal();
+        };
+
+        window.onclick = (e) => {
+            if (e.target.id === 'confirmModal') closeModal();
+        };
+    </script>
+</body>
+</html>

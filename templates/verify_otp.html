@@ -1,0 +1,152 @@
+{% extends "layout.html" %}
+
+{% block title %}Verify Registration - e-Learny{% endblock %}
+
+{% block extra_css %}
+    <style>
+        .auth-page {
+            min-height: calc(100vh - 150px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #ffffff;
+            padding: 40px 20px 120px 20px;
+        }
+        .auth-container {
+            width: 100%;
+            max-width: 380px;
+            padding: 45px;
+            background: #ffffff;
+            border: 1px solid #f0f0f0;
+            border-radius: 12px;
+            box-shadow: 0 4px 25px rgba(0,0,0,0.02);
+            text-align: center;
+        }
+        .auth-container h2 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+            color: #1a1a1a;
+            letter-spacing: -0.5px;
+        }
+        .auth-container p {
+            font-size: 0.9rem;
+            color: #777;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #444;
+        }
+        .form-control {
+            width: 100%;
+            padding: 14px 16px; 
+            border: 1px solid rgba(0,0,0,0.3);
+            border-radius: 8px;
+            font-size: 15px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+            text-align: center;
+            letter-spacing: 5px;
+            transition: all 0.2s;
+            box-sizing: border-box;
+            background: #ffffff;
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.05);
+        }
+        .auth-error, .auth-success {
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 25px;
+            border-left: 4px solid;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .auth-error {
+            background: #fff5f5;
+            color: #c53030;
+            border-color: #c53030;
+        }
+        .auth-success {
+            background: #f0fff4;
+            color: #2f855a;
+            border-color: #2f855a;
+        }
+        .btn-submit {
+            width: 100%;
+            padding: 15px;
+            background: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+            font-family: 'Poppins', sans-serif;
+        }
+        .btn-submit:hover {
+            background: #0056b3;
+            transform: translateY(-1px);
+        }
+        .auth-footer {
+            margin-top: 25px;
+            font-size: 0.85rem;
+            color: #666;
+        }
+        .auth-footer a {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: 700;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="auth-container">
+        <h2>Verify Email</h2>
+        <p>We've sent a 6-digit code to your email address. Enter it below to complete registration.</p>
+        
+        <form method="POST">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                {% for category, message in messages %}
+                  <div class="auth-{{ 'success' if category == 'success' else 'error' }}">
+                      <i class="fas fa-{{ 'check-circle' if category == 'success' else 'exclamation-circle' }}"></i>
+                      <span>{{ message }}</span>
+                  </div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+
+            <div class="form-group">
+                <label>Verification Code <span style="color:red;">*</span></label>
+                <input type="text" name="otp" class="form-control" placeholder="000000" maxlength="6" pattern="[0-9]{6}" required autofocus>
+            </div>
+            
+            <button type="submit" class="btn-submit">Register Account</button>
+        </form>
+        
+        <div class="auth-footer">
+            Didn't receive the code? <a href="{{ url_for('resend_otp') }}">Resend OTP</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

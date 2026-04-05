@@ -1,0 +1,82 @@
+{% extends "layout.html" %}
+
+{% block title %}My Enrolled Courses - e-Learny{% endblock %}
+
+{% block extra_css %}
+<style>
+    body { background: #f8fafc; font-family: 'Poppins', sans-serif; }
+    .container { max-width: 1200px; margin: 40px auto; padding: 20px; }
+    .header { margin-bottom: 30px; border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; }
+    .header h1 { font-weight: 800; color: #1e293b; }
+    .course-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px; }
+    .course-card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: 0.3s; }
+    .course-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+    .course-img { width: 100%; height: 180px; object-fit: cover; }
+    .course-content { padding: 20px; }
+    .course-title { font-size: 1.25rem; font-weight: 700; color: #1e293b; margin-bottom: 10px; }
+    .course-meta { color: #64748b; font-size: 0.9rem; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+    .btn-resume { display: block; text-align: center; background: #007bff; color: white; padding: 12px; border-radius: 8px; text-decoration: none; font-weight: 600; transition: 0.3s; }
+    .btn-resume:hover { background: #0056b3; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="my-courses-page" style="min-height: 100vh; background-color: #f8fafc !important;">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 60px 20px;">
+        <div class="header-section" style="margin-bottom: 50px;">
+            <h1 style="font-size: 2.5rem; font-weight: 800; color: #1e293b; letter-spacing: -1px; margin-bottom: 10px;">My Personal Curriculum 📚</h1>
+            <p style="color: #94a3b8; font-size: 1.1rem; font-weight: 500;">Track your mastery and continue your professional development.</p>
+        </div>
+
+        <div class="courses-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px;">
+            {% for course in courses %}
+            <div class="premium-card" style="background: white; border-radius: 24px; border: 1.5px solid #f1f5f9; overflow: hidden; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 20px rgba(0,0,0,0.03);" onmouseover="this.style.transform='translateY(-8px)'; this.style.boxShadow='0 20px 40px rgba(0,0,0,0.08)'; this.style.borderColor='#e2e8f0'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(0,0,0,0.03)'; this.style.borderColor='#f1f5f9'">
+                <div class="card-media" style="height: 180px; position: relative;">
+                    <img src="{{ course.thumbnail or 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800' }}" style="width: 100%; height: 100%; object-fit: cover;">
+                    <div style="position: absolute; top: 15px; right: 15px;">
+                        <span style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(4px); color: #1e293b; padding: 6px 14px; border-radius: 12px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; box-shadow: 0 4px 12px rgba(0,0,0,0.12);">{{ course.level }}</span>
+                    </div>
+                </div>
+                <div class="card-content" style="padding: 25px;">
+                    <h3 style="font-size: 1.15rem; font-weight: 800; color: #1e293b; line-height: 1.4; margin-bottom: 8px; height: 1.4em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ course.title }}</h3>
+                    <div style="margin-bottom: 20px;">
+                        <span style="color: #007bff; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">{{ course.domain or 'Engineering' }}</span>
+                    </div>
+
+                    <div class="progress-wrap" style="margin-bottom: 25px;">
+                        <div style="display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 700; color: #64748b; margin-bottom: 8px;">
+                            <span>{% if course.progress_percent|int == 100 %}Course Completed 🎓{% else %}Mastery Progress{% endif %}</span>
+                            <span style="color: {{ '#00d68f' if course.progress_percent|int == 100 else '#007bff' }};">{{ course.progress_percent }}%</span>
+                        </div>
+                        <div style="height: 8px; background: #f1f5f9; border-radius: 10px; overflow: hidden;">
+                            <div style="height: 100%; width: {{ course.progress_percent }}%; background: {{ 'linear-gradient(90deg, #00d68f, #00e676)' if course.progress_percent|int == 100 else 'linear-gradient(90deg, #007bff, #00d2ff)' }}; border-radius: 10px; transition: width 1s ease-out;"></div>
+                        </div>
+                    </div>
+
+                    {% set is_done = course.progress_percent|int == 100 %}
+                    <a href="{{ url_for('course_detail', course_slug=course.slug) }}" 
+                       style="display: flex; align-items: center; justify-content: center; gap: 8px; width: fit-content; min-width: 180px; margin: 0 auto; background: #007bff; color: white; padding: 14px 25px; border-radius: 16px; font-weight: 700; font-size: 0.9rem; text-decoration: none; transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 10px 25px rgba(0, 123, 255, 0.2);" 
+                       onmouseover="this.style.background='#0056b3'; this.style.transform='translateY(-3px)'; this.style.boxShadow='0 15px 35px rgba(0, 123, 255, 0.3)'" 
+                       onmouseout="this.style.background='#007bff'; this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 25px rgba(0, 123, 255, 0.2)'">
+                        {% if is_done %}
+                            View Details <i class="fas fa-check-double" style="font-size: 0.8rem;"></i>
+                        {% else %}
+                            Resume Study <i class="fas fa-arrow-right" style="font-size: 0.8rem;"></i>
+                        {% endif %}
+                    </a>
+                </div>
+            </div>
+            {% else %}
+            <div style="grid-column: 1/-1; text-align: center; padding: 120px 20px; background: white; border-radius: 40px; border: 2.5px dashed #f1f5f9;">
+                <div style="background: #eff6ff; width: 90px; height: 90px; border-radius: 30px; display: flex; align-items: center; justify-content: center; margin: 0 auto 30px; font-size: 2.2rem; color: #007bff;">
+                    <i class="fas fa-rocket"></i>
+                </div>
+                <h3 style="color: #1e293b; font-weight: 800; font-size: 1.8rem; margin-bottom: 12px; letter-spacing: -0.5px;">Ignite Your Learning Path</h3>
+                <p style="color: #94a3b8; font-size: 1.1rem; margin-bottom: 40px; max-width: 400px; margin-left: auto; margin-right: auto;">You haven't added any professional courses to your curriculum yet.</p>
+                <a href="{{ url_for('all_courses') }}" style="display: inline-block; background: #007bff; color: white; padding: 16px 45px; border-radius: 18px; text-decoration: none; font-weight: 700; font-size: 1rem; box-shadow: 0 10px 25px rgba(0,123,255,0.25); transition: 0.3s;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 15px 35px rgba(0,123,255,0.3)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 25px rgba(0,123,255,0.25)'">Browse Professional Catalog</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

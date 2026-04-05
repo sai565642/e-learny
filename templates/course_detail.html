@@ -1,0 +1,187 @@
+{% extends "layout.html" %}
+
+{% block title %}{{ course.title }} - e-Learny{% endblock %}
+
+{% block extra_css %}
+<style>
+    .course-hero {
+        background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%);
+        padding: 100px 0; color: #1e293b; position: relative; overflow: hidden;
+        border-bottom: 1.5px solid #e2e8f0;
+    }
+    .hero-inner { max-width: 1200px; margin: 0 auto; padding: 0 20px; display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 60px; align-items: start; position: relative; z-index: 2; }
+    
+    .course-meta { margin-bottom: 25px; display: flex; gap: 12px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; }
+    .meta-badge { background: white; color: #007bff; padding: 8px 16px; border-radius: 10px; border: 1.5px solid #dbeafe; box-shadow: 0 4px 10px rgba(0,123,255,0.05); }
+    
+    .course-title { font-size: 3.5rem; font-weight: 900; margin-bottom: 20px; line-height: 1.05; letter-spacing: -2px; color: #0f172a; }
+    .course-desc { font-size: 1.25rem; color: #64748b; line-height: 1.6; margin-bottom: 40px; max-width: 95%; }
+    
+    .instructor-strip { display: flex; align-items: center; gap: 18px; margin-bottom: 40px; padding: 15px; background: white; border-radius: 16px; width: fit-content; border: 1.5px solid #f1f5f9; box-shadow: 0 8px 20px rgba(0,0,0,0.02); }
+    .instructor-avatar { width: 48px; height: 48px; background: #eff6ff; color: #007bff; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; font-weight: 900; border: 1.5px solid #dbeafe; }
+    
+    /* Left side Action Area */
+    .action-row { display: flex; align-items: center; gap: 20px; margin-top: 20px; }
+    
+    .btn-action { 
+        display: flex; align-items: center; justify-content: center; gap: 12px;
+        padding: 18px 35px; border-radius: 16px; font-weight: 800; font-size: 1.1rem; 
+        text-align: center; text-decoration: none; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: none; cursor: pointer; 
+    }
+    .btn-buy { background: #007bff; color: white; box-shadow: 0 12px 25px rgba(0,123,255,0.2); }
+    .btn-buy:hover { background: #0056b3; transform: translateY(-4px); box-shadow: 0 15px 35px rgba(0,123,255,0.3); }
+    
+    .btn-resume { background: #1e293b; color: white; box-shadow: 0 12px 25px rgba(30,41,59,0.2); }
+    .btn-resume:hover { background: #0f172a; transform: translateY(-4px); }
+    
+    /* Right side Thumbnail Only */
+    .thumbnail-card { border-radius: 30px; overflow: hidden; box-shadow: 0 40px 80px rgba(0,0,0,0.1); border: 4px solid white; transition: 0.5s; }
+    .thumbnail-card:hover { transform: scale(1.02) rotate(1deg); box-shadow: 0 50px 100px rgba(0,0,0,0.15); }
+    .thumbnail-card img { width: 100%; height: auto; display: block; }
+    
+    /* Curriculum Section */
+    .content-section { max-width: 1200px; margin: 60px auto 120px; padding: 0 20px; display: grid; grid-template-columns: 1fr; gap: 50px; }
+
+    .chapter-card { background: white; border: 1.5px solid #f1f5f9; border-radius: 20px; margin-bottom: 25px; overflow: hidden; transition: 0.3s; }
+    .chapter-card:hover { border-color: #dbeafe; box-shadow: 0 10px 30px rgba(0,0,0,0.03); }
+    
+    .chapter-header { padding: 25px 35px; background: #fff; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; }
+    .chapter-header h4 { margin: 0; font-size: 1.2rem; font-weight: 800; color: #1e293b; }
+    .chapter-header:hover { background: #f8fafc; }
+    
+    .lecture-list { padding: 5px 35px 35px; display: none; background: #fff; }
+    .lecture-item { display: flex; justify-content: space-between; align-items: center; padding: 16px 22px; border-radius: 14px; margin-bottom: 12px; transition: 0.2s; background: #f8fafc; border: 1.5px solid transparent; }
+    .lecture-item:hover { background: #fff; border-color: #007bff; transform: translateX(8px); }
+    .lecture-item.locked { opacity: 0.6; cursor: not-allowed; background: #f1f5f9; }
+    
+    .lec-info { display: flex; align-items: center; gap: 15px; font-weight: 700; font-size: 0.95rem; color: #475569; cursor: pointer; min-width: 0; }
+    .lec-info span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .lec-info i { font-size: 1.3rem; color: #007bff; flex-shrink: 0; }
+    .lec-info.locked i { color: #94a3b8; }
+
+    .btn-toggle-prog { background: none; border: none; font-size: 1.5rem; cursor: pointer; transition: 0.2s; }
+    .btn-toggle-prog.done { color: #10b981; }
+    .btn-toggle-prog.pending { color: #cbd5e1; }
+    .btn-toggle-prog:hover { transform: scale(1.2); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="course-hero">
+    <div class="hero-inner">
+        <div>
+            <div class="course-meta">
+                <span class="meta-badge"><i class="fas fa-layer-group" style="margin-right: 6px;"></i> {{ course.domain or 'General' }}</span>
+                <span class="meta-badge"><i class="fas fa-signal" style="margin-right: 6px;"></i> {{ course.level }}</span>
+                <span class="meta-badge" style="background: #ecfdf5; color: #10b981; border-color: #d1fae5;"><i class="fas fa-certificate" style="margin-right: 6px;"></i> Verified Syllabus</span>
+            </div>
+
+            <h1 class="course-title">{{ course.title }}</h1>
+            <p class="course-desc">{{ course.description }}</p>
+            
+            <div class="instructor-strip">
+                <div class="instructor-avatar">{{ course.instructor_name[0]|upper }}</div>
+                <div>
+                    <div style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 800; color: #94a3b8; margin-bottom: 4px;">Instruction Lead</div>
+                    <div style="font-weight: 800; font-size: 1.15rem; color: #1e293b;">{{ course.first_name }} {{ course.last_name or '' }}</div>
+                </div>
+            </div>
+
+            <div class="action-row" id="enrollSection">
+                {% set is_mod = user.is_superuser or (user and user.id == course.instructor_id) %}
+                
+                {% if is_mod %}
+                    <div class="btn-action" style="background:#f1f5f9; color:#94a3b8; cursor:not-allowed;">
+                        <i class="fas fa-shield-alt"></i> Administrative Access
+                    </div>
+                {% elif purchased %}
+                    <a href="#curriculum" class="btn-action btn-resume">
+                        <i class="fas fa-play-circle"></i> Continue to Modules
+                    </a>
+                {% elif profile and profile.occupational_status == 'Teacher' %}
+                    <div class="btn-action" style="background:#f1f5f9; color:#94a3b8; cursor:not-allowed;">
+                        <i class="fas fa-info-circle"></i> Enrollment for Learners Only
+                    </div>
+                {% else %}
+                    <form action="{{ url_for('enroll_course', course_id=course.id) }}" method="POST" style="margin:0;">
+                        <button type="submit" class="btn-action btn-buy">
+                            <i class="fas fa-bolt"></i> Enroll and Start Learning
+                        </button>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Right side: ONLY thumbnail -->
+        <div class="thumbnail-card">
+            <img src="{{ course.thumbnail or 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1000' }}" alt="Course Brand">
+        </div>
+    </div>
+</div>
+
+<div class="content-section" id="curriculum">
+    <div>
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 40px; border-bottom: 2px solid #f1f5f9; padding-bottom: 20px;">
+            <h2 style="font-weight: 900; font-size: 2rem; color: #0f172a; margin:0; letter-spacing: -1.5px;">Curriculum Map</h2>
+            {% set total_modules = 0 %}
+            {% for s in sections %}{% set total_modules = total_modules + s.lectures|length %}{% endfor %}
+            <div style="background: #eff6ff; color: #007bff; padding: 10px 20px; border-radius: 14px; font-weight: 800; font-size: 0.9rem;">
+                {{ sections|length }} Chapters • {{ total_modules }} Modules
+            </div>
+        </div>
+        
+        <div class="curriculum-accordion">
+            {% for sec in sections %}
+            <div class="chapter-card">
+                <div class="chapter-header" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <div style="width: 35px; height: 35px; background: #f8fafc; border-radius: 10px; display:flex; align-items:center; justify-content:center; color: #007bff; font-weight: 900; font-size: 0.85rem;">{{ loop.index }}</div>
+                        <h4>{{ sec.title }}</h4>
+                    </div>
+                    <i class="fas fa-chevron-down" style="color: #cbd5e1; font-size: 1rem;"></i>
+                </div>
+                
+                <div class="lecture-list" style="{{ 'display:block;' if loop.index == 1 else '' }}">
+                    {% for lec in sec.lectures %}
+                        {% set is_locked = not (purchased or user.is_superuser or (user and user.id == course.instructor_id)) %}
+                        {% set lec_video = lec.video_file if lec.video_file else '#' %}
+                        {% set lec_click = "window.open('" ~ lec_video ~ "', '_blank')" if not is_locked else "" %}
+                        {% set lec_title = "Click to play video" if not is_locked else "Enroll to unlock content" %}
+                        <div class="lecture-item {{ 'locked' if is_locked }}">
+                            <div class="lec-info {{ 'locked' if is_locked }}" onclick="{{ lec_click }}" title="{{ lec_title }}">
+                                <i class="fas {{ 'fa-lock' if is_locked else 'fa-play-circle' }}"></i>
+                                <span>{{ lec.title }}</span>
+                            </div>
+                            
+                            {% if purchased %}
+                            <button type="button" class="btn-toggle-prog {{ 'done' if lec.is_completed else 'pending' }}" onclick="toggleProgress({{ lec.id }})" title="Toggle Completion">
+                                <i class="fas {{ 'fa-check-circle' if lec.is_completed else 'fa-circle' }}"></i>
+                            </button>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                    
+                    {% for doc in sec.documents %}
+                        {% set is_locked = not (purchased or user.is_superuser or (user and user.id == course.instructor_id)) %}
+                        <div class="lecture-item {{ 'locked' if is_locked }}" style="background: white; border: 1.5px dashed #dbeafe; margin-top: 10px;">
+                            <div class="lec-info {{ 'locked' if is_locked }}" {% if not is_locked %}onclick="window.open('{{ doc.document }}', '_blank')"{% endif %}>
+                                <i class="fas {{ 'fa-lock' if is_locked else 'fa-file-pdf' }}" style="color: #f97316;"></i>
+                                <span title="{{ doc.title }}">{{ doc.title }}</span>
+                            </div>
+                            <i class="fas fa-download" style="color: #cbd5e1; font-size: 0.9rem;"></i>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+async function toggleProgress(id) {
+    const res = await fetch(`/toggle_video/${id}`, { method: 'POST' });
+    if(res.ok) location.reload();
+}
+</script>
+{% endblock %}

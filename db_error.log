@@ -1,0 +1,2 @@
+Database Query Error: (1146, "Table 'elearning.contact_messages' doesn't exist")
+Database Query Error: (1146, "Table 'elearning.courses_app_course_instructors' doesn't exist")

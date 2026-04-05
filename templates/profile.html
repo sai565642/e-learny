@@ -1,0 +1,300 @@
+{% extends "layout.html" %}
+
+{% block title %}Professional Profile - e-Learny{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-container { max-width: 1100px; margin: 40px auto 100px; padding: 0 20px; }
+    
+    .profile-card { 
+        background: white; border-radius: 32px; padding: 50px; 
+        box-shadow: 0 25px 60px rgba(0,0,0,0.04); border: 1.5px solid #f1f5f9; 
+        display: grid; grid-template-columns: 280px 1fr; gap: 60px; 
+        position: relative;
+    }
+    @media(max-width: 992px) { .profile-card { grid-template-columns: 1fr; padding: 30px; } }
+    
+    .profile-sidebar { 
+        display: flex; flex-direction: column; align-items: center; 
+        border-right: 1.5px solid #f1f5f9; padding-right: 60px; 
+    }
+    @media(max-width: 992px) { .profile-sidebar { border-right: none; padding-right: 0; border-bottom: 1.5px solid #f1f5f9; padding-bottom: 40px; } }
+    
+    .avatar-lg { 
+        width: 170px; height: 170px; border-radius: 50px; 
+        background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); 
+        color: #007bff; display: flex; align-items: center; justify-content: center; 
+        font-size: 4.5rem; font-weight: 900; margin-bottom: 25px; 
+        box-shadow: 0 20px 40px rgba(0,123,255,0.1);
+        border: 4px solid white;
+    }
+    
+    .role-tag { 
+        background: #fdf4ff; color: #d946ef; padding: 7px 16px; 
+        border-radius: 10px; font-weight: 900; font-size: 0.75rem; 
+        text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 15px; 
+    }
+    .role-student { background: #eff6ff; color: #007bff; }
+    .role-admin { background: #fef2f2; color: #ef4444; }
+    
+    .section-header {
+        display: flex; justify-content: space-between; align-items: center;
+        margin-bottom: 35px; border-bottom: 2px solid #f8fafc; padding-bottom: 15px;
+    }
+    .section-header h2 { font-size: 1.6rem; font-weight: 900; color: #1e293b; letter-spacing: -0.5px; margin: 0; }
+
+    .form-grid { 
+        display: grid; grid-template-columns: 1fr 1fr; gap: 30px; 
+        margin-bottom: 30px; 
+    }
+    @media(max-width: 768px) { .form-grid { grid-template-columns: 1fr; } }
+    
+    .form-group { min-width: 0; }
+    .form-group label { 
+        display: block; font-weight: 700; font-size: 0.8rem; 
+        color: #64748b; text-transform: uppercase; letter-spacing: 0.8px; 
+        margin-bottom: 8px; 
+    }
+    
+    .form-input { 
+        width: 100%; padding: 16px 20px; border-radius: 16px; 
+        border: 2px solid #f1f5f9; background: #f8fafc; 
+        font-family: 'Poppins', sans-serif; font-weight: 600; color: #1e293b;
+        font-size: 0.95rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+    }
+    .form-input:focus { 
+        border-color: #007bff; background: white; outline: none; 
+        box-shadow: 0 10px 30px rgba(0,123,255,0.1); 
+    }
+    
+    .form-input[readonly], .form-input[disabled] { 
+        background: #fcfdfe; border-color: transparent; 
+        color: #334155; cursor: default; padding-left: 0;
+        font-weight: 600; font-size: 0.95rem;
+    }
+    
+    .edit-mode .form-input {
+        background: #f8fafc; border-color: #e2e8f0; padding-left: 20px;
+    }
+
+    .action-bar { display: flex; gap: 15px; margin-top: 40px; }
+    
+    .btn-action { 
+        padding: 16px 35px; border-radius: 18px; font-weight: 800; 
+        font-size: 0.95rem; cursor: pointer; transition: 0.3s; 
+        display: flex; align-items: center; gap: 10px; border: none;
+    }
+    
+    .btn-edit { background: #f1f5f9; color: #1e293b; }
+    .btn-edit:hover { background: #e2e8f0; transform: translateY(-2px); }
+    
+    .btn-save { 
+        background: #007bff; color: white; display: none;
+        box-shadow: 0 10px 25px rgba(0,123,255,0.25);
+    }
+    .btn-save:hover { background: #0056b3; transform: scale(1.02); }
+    
+    .edit-mode .btn-save { display: flex; }
+    .edit-mode .btn-edit { background: #fef2f2; color: #ef4444; }
+
+    @media (max-width: 768px) {
+        .profile-container { margin-top: 20px !important; padding: 0 10px !important; }
+        .profile-card { padding: 30px 20px !important; border-radius: 24px !important; }
+        .avatar-lg { width: 130px; height: 130px; font-size: 3.5rem; }
+        .action-bar { flex-direction: column; width: 100%; }
+        .btn-action { width: 100%; justify-content: center; }
+        .section-header { flex-direction: column; gap: 15px; align-items: flex-start; }
+        .section-header button { width: 100%; }
+    }
+</style>
+
+{% endblock %}
+
+{% block content %}
+<div class="profile-container" style="margin-top: 60px;">
+    <div class="profile-card" id="profileCard">
+        <div class="profile-sidebar">
+            <div class="avatar-lg">
+                {{ user.first_name[0]|upper if user.first_name else user.username[0]|upper }}
+            </div>
+            
+            {% set role = profile.occupational_status if profile else 'Student' %}
+            {% if user.is_superuser %}
+                <div class="role-tag role-admin">Administrator</div>
+            {% elif role == 'Teacher' %}
+                <div class="role-tag">Instructor</div>
+            {% else %}
+                <div class="role-tag role-student">Student</div>
+            {% endif %}
+            
+            <h3 style="font-size: 1.5rem; font-weight: 900; color: #1e293b; margin: 15px 0 2px 0; letter-spacing: -0.5px; text-align: center;">{{ user.first_name }} {{ user.last_name }}</h3>
+            <p style="color: #007bff; margin:0 0 12px 0; font-size: 0.85rem; font-weight: 800; text-align: center;">@{{ user.username }}</p>
+            <p style="color: #94a3b8; margin:0; font-size: 0.8rem; font-weight: 600; text-align: center;">Core Member since {{ user.date_joined|default('2026') }}</p>
+        </div>
+        
+        <div class="profile-main">
+            <div class="section-header">
+                <h2 style="font-size: 1.4rem;">Account Information</h2>
+                <button type="button" class="btn-action btn-edit" id="toggleEdit">
+                    <i class="fas fa-edit"></i> <span id="editText">Edit Profile</span>
+                </button>
+            </div>
+            
+            <form action="{{ url_for('profile') }}" method="POST" id="profileForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>First Name</label>
+                        <input type="text" name="first_name" class="form-input" value="{{ user.first_name }}" readonly required>
+                    </div>
+                    <div class="form-group">
+                        <label>Last Name</label>
+                        <input type="text" name="last_name" class="form-input" value="{{ user.last_name }}" readonly required>
+                    </div>
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Contact Email</label>
+                        <input type="email" name="email" class="form-input" value="{{ user.email }}" readonly required>
+                        <small style="color: #94a3b8; font-size: 0.65rem; font-weight: 700; text-transform: uppercase;">Primary authentication email</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Mobile Line</label>
+                        <input type="text" name="mobile" class="form-input" value="{{ profile.mobile if profile else '' }}" readonly placeholder="Not provided">
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Date of Birth</label>
+                        <input type="date" name="dob" class="form-input" value="{{ profile.dob if profile else '' }}" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Gender Identity</label>
+                        <div class="custom-select-wrapper" id="genderWrapper">
+                            <input type="hidden" name="gender" id="genderInput" value="{{ profile.gender or 'Not Specified' }}">
+                            <div class="custom-select-trigger" id="genderTrigger">
+                                <span>{{ profile.gender or 'Not Specified' }}</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <div class="custom-options">
+                                <div class="custom-option {{ 'selected' if profile.gender == 'Male' else '' }}" data-value="Male">Male</div>
+                                <div class="custom-option {{ 'selected' if profile.gender == 'Female' else '' }}" data-value="Female">Female</div>
+                                <div class="custom-option {{ 'selected' if profile.gender == 'Other' else '' }}" data-value="Other">Other</div>
+                                <div class="custom-option {{ 'selected' if not profile.gender else '' }}" data-value="Not Specified">Not Specified</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Professional Biography</label>
+                    <textarea name="bio" class="form-input" style="height: 120px; resize: none;" readonly placeholder="User has not yet provided a curriculum biography...">{{ profile.bio if profile else '' }}</textarea>
+                </div>
+                
+                <div class="action-bar">
+                    <button type="submit" class="btn-action btn-save">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Custom Select Styles */
+    .custom-select-wrapper { position: relative; width: 100%; pointer-events: none; opacity: 0.8; }
+    .edit-mode .custom-select-wrapper { pointer-events: auto; opacity: 1; }
+
+    .custom-select-trigger {
+        width: 100%; padding: 16px 20px; border-radius: 16px; 
+        border: 2px solid transparent; background: #fcfdfe; 
+        display: flex; justify-content: space-between; align-items: center;
+        font-weight: 600; color: #334155; font-size: 0.95rem; cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .edit-mode .custom-select-trigger {
+        background: #f8fafc; border-color: #e2e8f0; color: #1e293b; font-weight: 600;
+    }
+
+    .custom-options {
+        position: absolute; top: 110%; left: 0; right: 0; 
+        background: white; border-radius: 16px; border: 1.5px solid #e2e8f0;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.1); display: none; z-index: 100;
+        overflow: hidden;
+    }
+    .custom-select-wrapper.open .custom-options { display: block; }
+
+    .custom-option {
+        padding: 12px 20px; cursor: pointer; font-weight: 600; font-size: 0.9rem;
+        color: #475569; transition: 0.2s;
+    }
+    .custom-option:hover { background: #f0f7ff; color: #007bff; }
+    .custom-option.selected { background: #eff6ff; color: #007bff; }
+</style>
+
+<script>
+    const toggleBtn = document.getElementById('toggleEdit');
+    const profileCard = document.getElementById('profileCard');
+    const profileForm = document.getElementById('profileForm');
+    const inputs = profileForm.querySelectorAll('.form-input');
+    const editText = document.getElementById('editText');
+    const genderWrapper = document.getElementById('genderWrapper');
+    const genderTrigger = document.getElementById('genderTrigger');
+    const genderInput = document.getElementById('genderInput');
+    const genderOptions = genderWrapper.querySelectorAll('.custom-option');
+    let isEditMode = false;
+
+    // Toggle Edit Mode
+    toggleBtn.onclick = () => {
+        isEditMode = !isEditMode;
+        
+        if (isEditMode) {
+            profileCard.classList.add('edit-mode');
+            inputs.forEach(input => {
+                if (input.name !== 'email') { 
+                    input.readOnly = false;
+                    if(input.tagName === 'SELECT' || input.tagName === 'TEXTAREA') input.disabled = false;
+                }
+            });
+            editText.textContent = 'Cancel Editing';
+            toggleBtn.innerHTML = `<i class="fas fa-times"></i> ${editText.textContent}`;
+        } else {
+            profileCard.classList.remove('edit-mode');
+            inputs.forEach(input => input.readOnly = true);
+            genderWrapper.classList.remove('open');
+            editText.textContent = 'Edit Profile';
+            toggleBtn.innerHTML = `<i class="fas fa-edit"></i> ${editText.textContent}`;
+            profileForm.reset(); 
+            // Reset custom select
+            genderTrigger.querySelector('span').textContent = genderInput.value;
+        }
+    };
+
+    // Custom Select Logic
+    genderTrigger.onclick = (e) => {
+        if (!isEditMode) return;
+        genderWrapper.classList.toggle('open');
+    };
+
+    genderOptions.forEach(opt => {
+        opt.onclick = () => {
+            genderInput.value = opt.dataset.value;
+            genderTrigger.querySelector('span').textContent = opt.textContent;
+            genderOptions.forEach(o => o.classList.remove('selected'));
+            opt.classList.add('selected');
+            genderWrapper.classList.remove('open');
+        };
+    });
+
+    // Close options when clicking outside
+    window.addEventListener('click', (e) => {
+        if (!genderWrapper.contains(e.target)) {
+            genderWrapper.classList.remove('open');
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,173 @@
+{% extends "layout.html" %}
+
+{% block title %}Instructor Dashboard - e-Learny{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        --accent-color: #007bff;
+        --card-shadow: 0 10px 30px rgba(0,0,0,0.03);
+    }
+
+    body {
+        background-color: #f8fafc !important;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .dashboard-container {
+        padding: 40px 20px;
+        width: 92%; max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    /* Hero Banner Redesigned */
+    .hero-banner {
+        background: var(--primary-gradient);
+        padding: 50px 60px;
+        border-radius: 30px;
+        color: white;
+        margin-bottom: 50px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 20px 48px rgba(0, 123, 255, 0.15);
+        display: flex; justify-content: space-between; align-items: center;
+    }
+
+    .hero-content { position: relative; z-index: 2; }
+    .hero-content h1 { font-size: 2.5rem; font-weight: 900; margin-bottom: 12px; letter-spacing: -1.5px; }
+    .hero-content p { opacity: 0.95; font-size: 1.15rem; font-weight: 500; max-width: 500px; line-height: 1.6; }
+
+    .hero-bg-shapes div { position: absolute; background: rgba(255,255,255,0.1); border-radius: 50%; }
+    .shape-1 { width: 400px; height: 400px; top: -150px; right: -80px; }
+    .shape-2 { width: 180px; height: 180px; bottom: -60px; left: 15%; }
+
+    /* Stats Grid */
+    .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; margin-bottom: 60px; }
+    .stat-card { background: white; padding: 30px; border-radius: 20px; border: 1.5px solid #f1f5f9; display:flex; align-items:center; gap:25px; box-shadow: var(--card-shadow); transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .stat-card:hover { transform: translateY(-5px); border-color: #007bff; box-shadow: 0 15px 35px rgba(0,0,0,0.06); }
+    .stat-icon { width: 56px; height: 56px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; }
+
+    /* Course Grid Optimized */
+    .curriculum-section { padding: 60px 0 100px; }
+    .section-title { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+    .section-title h2 { font-weight: 900; font-size: 1.8rem; color: #0f172a; margin:0; letter-spacing: -1px; }
+    .course-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 40px; margin-bottom: 80px; }
+    
+    .course-card { background: white; border-radius: 24px; overflow: hidden; border: 1.5px solid #f1f5f9; box-shadow: var(--card-shadow); transition: 0.3s; }
+    .course-card:hover { transform: translateY(-10px); box-shadow: 0 20px 45px rgba(0,0,0,0.07); border-color: #007bff; }
+    .card-img { height: 180px; position: relative; border-bottom: 1.5px solid #f8fafc; }
+    .card-img img { width: 100%; height: 100%; object-fit: cover; }
+    .card-body { padding: 25px; }
+    .card-body h3 { font-size: 1.15rem; font-weight: 800; color: #1e293b; margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .btn-action { 
+        background: #007bff; color: white; padding: 14px 28px; border-radius: 14px; 
+        font-weight: 800; text-decoration: none; font-size: 0.95rem; transition: 0.3s; 
+        box-shadow: 0 10px 20px rgba(0,123,255,0.15); border: none; cursor: pointer; 
+        display: inline-flex; align-items: center; gap: 10px;
+    }
+    .btn-action:hover { background: #0056b3; transform: scale(1.03); box-shadow: 0 12px 25px rgba(0,123,255,0.25); }
+
+    .btn-white { 
+        background: white; color: #007bff; 
+    }
+    .btn-white:hover { background: #f8fafc; color: #0056b3; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    {% if not is_approved %}
+    <div style="background: #fffbeb; border: 1.5px solid #fef3c7; color: #d97706; padding: 22px; border-radius: 18px; margin-bottom: 35px; font-weight: 700; font-size: 0.95rem; display:flex; align-items:center; gap: 15px; box-shadow: 0 4px 12px rgba(217, 119, 6, 0.05);">
+        <div style="background: white; width: 40px; height: 40px; border-radius: 12px; display:flex; align-items:center; justify-content:center; color: #d97706; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+            <i class="fas fa-clock"></i>
+        </div>
+        Your instructor credentials are being validated. Full publication capabilities will be unleashed upon approval.
+    </div>
+    {% endif %}
+
+    <div class="hero-banner">
+        <div class="hero-content">
+            <h1>Instructor Workspace <i class="fas fa-meteor" style="font-size: 1.5rem; margin-left: 10px; opacity: 0.5;"></i></h1>
+            <p>Design your syllabus, monitor student success, and expand your digital influence across the global platform.</p>
+        </div>
+        <div class="hero-bg-shapes">
+            <div class="shape-1"></div>
+            <div class="shape-2"></div>
+        </div>
+        {% if is_approved %}
+        <div style="position:relative; z-index:2;">
+            <a href="{{ url_for('add_course') }}" class="btn-action btn-white">
+                <i class="fas fa-plus-circle"></i> Create New Course
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Stats Highlights -->
+    <div class="stats-row">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#eff6ff; color:#007bff;"><i class="fas fa-book-open"></i></div>
+            <div>
+                <h4 style="font-size: 0.65rem; color:#94a3b8; letter-spacing: 1.5px; font-weight:900; text-transform:uppercase;">Mastery Paths</h4>
+                <h2 style="font-size: 1.8rem; font-weight: 900; color: #0f172a; margin:0;">{{ total_count }}</h2>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#ecfdf5; color:#10b981;"><i class="fas fa-users"></i></div>
+            <div>
+                <h4 style="font-size: 0.65rem; color:#94a3b8; letter-spacing: 1.5px; font-weight:900; text-transform:uppercase;">Learners</h4>
+                <h2 style="font-size: 1.8rem; font-weight: 900; color: #0f172a; margin:0;">{{ courses | sum(attribute='student_count') }}</h2>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#fff7ed; color:#f59e0b;"><i class="fas fa-star"></i></div>
+            <div>
+                <h4 style="font-size: 0.65rem; color:#94a3b8; letter-spacing: 1.5px; font-weight:900; text-transform:uppercase;">Global Rating</h4>
+                <h2 style="font-size: 1.8rem; font-weight: 900; color: #0f172a; margin:0;">4.8<span style="font-size:0.9rem; color:#cbd5e1; font-weight:700;">/5</span></h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="curriculum-section">
+        <div class="section-title">
+            <h2>Your Recent Courses</h2>
+            <a href="{{ url_for('all_courses') }}" style="color:var(--accent-color); font-weight:800; text-decoration:none; font-size:0.95rem; display:flex; align-items:center; gap:10px;">
+                Manage All Resources <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    
+        <div class="course-grid">
+        {% for course in courses %}
+        <div class="course-card">
+            <div class="card-img">
+                <img src="{{ course.thumbnail or 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800' }}">
+                <span style="position:absolute; top: 15px; right: 15px; padding: 6px 14px; border-radius:10px; font-size: 0.65rem; font-weight:900; letter-spacing:1px; background: rgba(255,255,255,0.95); color:#007bff; text-transform:uppercase; box-shadow:0 4px 15px rgba(0,0,0,0.1); border: 1px solid #dbeafe;">{{ course.level }}</span>
+            </div>
+            <div class="card-body">
+                <h3>{{ course.title }}</h3>
+                <div style="margin-bottom:20px; display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-size: 0.7rem; font-weight:900; color: #007bff; text-transform:uppercase; letter-spacing:1px; background: #eff6ff; padding: 4px 10px; border-radius: 8px;">{{ course.domain }}</span>
+                    <span style="font-size: 0.8rem; color: #64748b; font-weight:700;"><i class="fas fa-user-graduate" style="color:#007bff; margin-right:6px;"></i> {{ course.student_count }}</span>
+                </div>
+                <div style="display:flex; gap:12px;">
+                    <a href="{{ url_for('course_detail', course_slug=course.slug) }}" style="flex:1; text-align:center; padding: 12px; background: #f8fafc; border: 1.5px solid #f1f5f9; border-radius:14px; color: #1e293b; font-weight:800; font-size:0.9rem; text-decoration:none; transition:0.3s;" onmouseover="this.style.background='#1e293b'; this.style.color='white'; this.style.borderColor='#1e293b'" onmouseout="this.style.background='#f8fafc'; this.style.color='#1e293b'; this.style.borderColor='#f1f5f9'">View Metrics</a>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div style="grid-column: 1 / -1; text-align: center; padding: 100px 40px; background: white; border-radius: 30px; border: 2px dashed #e2e8f0;">
+            <div style="background: #eff6ff; width: 80px; height: 80px; border-radius: 24px; display:flex; align-items:center; justify-content:center; margin: 0 auto 25px; box-shadow: 0 10px 25px rgba(0,123,255,0.1);">
+                <i class="fas fa-folder-open" style="font-size: 2rem; color: var(--accent-color);"></i>
+            </div>
+            <h3 style="color: #0f172a; font-weight: 900; font-size: 1.6rem; margin-bottom:12px;">No Courses Published Yet</h3>
+            <p style="color: #64748b; margin-bottom: 30px; font-size: 1.1rem; max-width: 400px; margin-left:auto; margin-right:auto;">Share your expertise with the world. Your teaching journey begins here.</p>
+            {% if is_approved %}
+            <a href="{{ url_for('add_course') }}" class="btn-action">Publish Your First Masterclass</a>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
