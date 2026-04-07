@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}e-Learny{% endblock %}</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png') }}">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Montserrat:wght@600;800&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/base_styles.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -96,8 +97,10 @@
             margin: 10px 0;
             text-align: center;
         }
-        body {
+        body, button, input, select, textarea {
             font-family: 'Poppins', sans-serif !important;
+        }
+        body {
             background-color: #f8fafc !important; margin: 0; min-height: 100vh; display: flex; flex-direction: column;
         }
         .flashes li {
@@ -268,7 +271,7 @@
         <div class="nav-container">
             <div class="logo">
                 <a href="{{ url_for('index') }}" style="display: flex; align-items: center; gap: 12px; text-decoration: none;">
-                    <i class="fas fa-graduation-cap" style="font-size: 2rem; color: #007bff;"></i> 
+                    <img src="{{ url_for('static', filename='images/logo.png') }}" style="height: 50px; width: 50px; border-radius: 50%; box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);" alt="e-Learny Logo">
                     <span style="font-size: 1.6rem; font-weight: 850; color: #007bff; letter-spacing: -1.2px;">e-Learny</span>
                 </a>
             </div>
@@ -354,7 +357,7 @@
     <footer style="background: #ffffff; color: #333; padding: 60px 0 30px 0; font-family: 'Poppins', sans-serif; border-top: 1px solid #f2f2f2; text-align: center;">
         <div class="container">
             <h3 style="color: #007bff; margin-bottom: 25px; font-weight: 950; font-size: 2.2rem; display: flex; align-items: center; justify-content: center; gap: 15px; letter-spacing: -1.5px;">
-                <i class="fas fa-graduation-cap" style="font-size: 2.8rem;"></i> e-Learny
+                <img src="{{ url_for('static', filename='images/logo.png') }}" style="height: 60px; width: 60px; border-radius: 50%;" alt="e-Learny Logo"> e-Learny
             </h3>
             <p style="opacity: 0.7; line-height: 1.6; font-size: 0.85rem; max-width: 600px; margin: 0 auto 25px;">Empowering students worldwide with practical tech skills and industry-recognized certifications.</p>
             

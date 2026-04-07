@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+ENV/
+
+# Database
+instance/
+*.db
+*.sqlite3
+
+# OS
+.DS_Store
+Thumbs.db
+
+# User Requested Exclusions
+Student_Management_System.pdf
+eLearny_Platform_Report.tex

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ course.title }} Certificate</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Alex+Brush&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { margin: 0; padding: 0; background: #e2e8f0; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: 'Poppins', sans-serif; }
+        .cert-container { background: white; width: 1037px; height: 737px; border: 20px solid #1e293b; padding: 40px; position: relative; box-shadow: 0 40px 100px rgba(0,0,0,0.2); }
+        .inner-border { border: 4px double #cbd5e1; width: 100%; height: 100%; position: relative; padding: 50px; box-sizing: border-box; text-align: center; }
+        
+        .header { font-family: 'Cinzel', serif; font-size: 2.8rem; color: #1e293b; letter-spacing: 3px; margin-bottom: 15px; }
+        .sub-header { color: #64748b; font-size: 1.2rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 30px; }
+        
+        .presented-to { font-size: 1.5rem; color: #475569; margin-bottom: 10px; font-style: italic; }
+        .student-name { font-size: 3.2rem; font-family: 'Cinzel', serif; color: #007bff; margin: 0 0 20px 0; border-bottom: 2px solid #e2e8f0; display: inline-block; padding: 0 40px; text-shadow: 2px 2px 4px rgba(0,0,0,0.05); }
+        
+        .reason { font-size: 1.3rem; color: #475569; line-height: 1.6; max-width: 700px; margin: 0 auto 20px; }
+        .course-title { font-weight: 600; color: #1e293b; font-size: 1.6rem; }
+        
+        .footer { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 60px; padding: 0 50px; }
+        .signature { text-align: center; width: 250px; }
+        .sig-line { border-top: 2px solid #1e293b; margin-top: 10px; padding-top: 10px; font-weight: 600; color: #1e293b; text-transform: uppercase; letter-spacing: 1px; font-size: 0.75rem; white-space: nowrap;}
+        
+        .seal { position: absolute; bottom: 60px; left: 50%; transform: translateX(-50%); width: 120px; height: 120px; background: linear-gradient(135deg, #007bff, #0056b3); border-radius: 50%; display: flex; justify-content: center; align-items: center; color: white; border: 8px solid #eff6ff; box-shadow: 0 10px 20px rgba(0, 123, 255, 0.3); }
+        .seal i { font-size: 3rem; }
+        
+        .brand { position: absolute; top: 40px; left: 50%; transform: translateX(-50%); font-weight: 800; font-size: 2.5rem; color: #007bff; display: flex; align-items: center; gap: 15px; }
+        .brand i { color: #007bff; }
+
+        .print-btn { 
+            position: fixed; bottom: 30px; right: 30px; 
+            background: #1e293b; color: white; 
+            padding: 15px 30px; border-radius: 50px; 
+            text-decoration: none; font-weight: 600; 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2); 
+            cursor: pointer; border: none; 
+            font-size: 1rem; transition: 0.3s; z-index: 100;
+            font-family: 'Poppins', sans-serif;
+        }
+        .print-btn:hover { background: #007bff; transform: translateY(-5px); }
+
+        @page {
+            size: A4 landscape;
+            margin: 0;
+        }
+
+        @media print {
+            html, body {
+                margin: 0;
+                padding: 0;
+                background: white;
+            }
+            body {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                height: 100vh;
+                width: 100vw;
+            }
+            .cert-container { 
+                box-shadow: none; 
+                border-color: #1e293b !important; 
+                -webkit-print-color-adjust: exact; 
+                print-color-adjust: exact; 
+                /* Force it to fill the landscape sheet exactly */
+                width: 290mm; 
+                height: 200mm; 
+                padding: 20px; 
+                border-width: 8px !important;
+                margin: 0;
+                box-sizing: border-box;
+                page-break-after: always;
+                position: relative;
+            }
+            .inner-border {
+                padding: 40px;
+                border: 3px double #cbd5e1 !important;
+            }
+            .print-btn, .seal { transform-origin: center; } /* Stability fix */
+            .print-btn { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <button onclick="window.print()" class="print-btn"><i class="fas fa-print"></i> Print & Download</button>
+
+    <div class="cert-container">
+        <div class="inner-border">
+            <div class="brand"><img src="{{ url_for('static', filename='images/logo.png') }}" style="height: 60px; width: 60px; border-radius: 50%; box-shadow: 0 4px 15px rgba(0, 123, 255, 0.2);" alt="e-Learny Logo"> e-Learny</div>
+            
+            <div style="margin-top: 80px;">
+                <div class="header">Certificate of Completion</div>
+                <div class="sub-header">This document proudly certifies that</div>
+                
+                <div class="presented-to">Awarded to</div>
+                <h1 class="student-name">{{ user.first_name }} {{ user.last_name }}</h1>
+                
+                <div class="reason">
+                    For successfully completing the comprehensive curriculum and demonstrating mastery in<br>
+                    <span class="course-title">{{ course.title }}</span>
+                </div>
+            </div>
+
+            <div class="footer" style="position: relative; z-index: 10; display: flex; align-items: flex-end; justify-content: space-between;">
+                <!-- Moving Date to the Left Side -->
+                <div class="signature" style="height: 100px; display: flex; flex-direction: column; justify-content: flex-end;">
+                    <div style="font-family: 'Cinzel', serif; font-size: 1.5rem; color: #475569; padding-bottom: 10px;">{{ date.strftime('%B %d, %Y') if date else 'Recently Completed' }}</div>
+                    <div class="sig-line">Date of Issuance</div>
+                </div>
+                
+                <!-- Moving Admin God Signature to the Right Side -->
+                <div class="signature" style="height: 100px; display: flex; flex-direction: column; justify-content: flex-end;">
+                    <!-- Admin God Custom Signature -->
+                    <div style="font-family: 'Alex Brush', cursive; font-size: 3.5rem; color: #000000; transform: rotate(-4deg); position: relative; top: 8px; white-space: nowrap;">Admin God</div>
+                    <div class="sig-line" style="position: relative; z-index: 10;">Director of Education (e-Learny)</div>
+                </div>
+            </div>
+
+            <div class="seal">
+                <i class="fas fa-award"></i>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

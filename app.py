@@ -163,16 +163,16 @@ def admin_teachers():
         action = request.form.get('action')
         target_id = request.form.get('id')
         if action == 'approve_teacher':
-            execute_query("UPDATE user_management_app_profile SET is_approved = 1 WHERE id = %s", (target_id,), commit=True)
+            execute_query("UPDATE user_management_app_profile SET is_approved = 1 WHERE user_id = %s", (target_id,), commit=True)
             flash("Teacher approved successfully!", "success")
         elif action == 'revoke_teacher':
-            execute_query("UPDATE user_management_app_profile SET is_approved = 0 WHERE id = %s", (target_id,), commit=True)
+            execute_query("UPDATE user_management_app_profile SET is_approved = 0 WHERE user_id = %s", (target_id,), commit=True)
             flash("Teacher access revoked.", "warning")
         elif action == 'delete_user':
             execute_query("DELETE FROM user_management_app_profile WHERE user_id = %s", (target_id,), commit=True)
             execute_query("DELETE FROM auth_user WHERE id = %s", (target_id,), commit=True)
             flash("Teacher deleted.", "error")
-    teachers = execute_query("SELECT u.id, u.username, u.email, p.id as profile_id, p.is_approved, p.occupational_status FROM auth_user u JOIN user_management_app_profile p ON u.id = p.user_id WHERE p.occupational_status = 'Teacher' ORDER BY p.id DESC", fetchall=True)
+    teachers = execute_query("SELECT u.id, u.username, u.first_name, u.last_name, u.email, p.id as profile_id, p.is_approved, p.occupational_status FROM auth_user u JOIN user_management_app_profile p ON u.id = p.user_id WHERE p.occupational_status = 'Teacher' ORDER BY p.id DESC", fetchall=True)
     return render_template('admin/approve_teachers.html', teachers=teachers)
 
 @app.route('/admin/courses', methods=['GET', 'POST'])
@@ -225,6 +225,9 @@ def register():
         if send_otp_email(email, otp):
             flash("OTP sent to your email!", "success")
             return redirect(url_for('verify_otp'))
+        else:
+            flash("Failed to send OTP email. Please try again or check SMTP configuration.", "error")
+            
     return render_template('register.html')
 
 @app.route('/verify-otp', methods=['GET', 'POST'])
@@ -307,7 +310,7 @@ def dashboard():
     for c in courses:
         total = execute_query("SELECT COUNT(*) as cnt FROM courses_app_video WHERE course_id = %s", (c['id'],), fetchone=True)
         total_count = total['cnt'] or 0
-        done = execute_query("SELECT COUNT(*) as cnt FROM student_video_progress vp JOIN courses_app_video v ON vp.video_id = v.id WHERE vp.user_id = %s AND v.course_id = %s", (app.user['id'], c['id']), fetchone=True)
+        done = execute_query("SELECT COUNT(DISTINCT vp.video_id) as cnt FROM student_video_progress vp JOIN courses_app_video v ON vp.video_id = v.id WHERE vp.user_id = %s AND v.course_id = %s AND vp.is_completed = 1", (app.user['id'], c['id']), fetchone=True)
         completed_count = done['cnt'] or 0
         c['progress_percent'] = int((completed_count / total_count * 100)) if total_count > 0 else 0
         cat = execute_query("SELECT name FROM courses_app_course_category WHERE id = %s", (c['category_id'],), fetchone=True)
@@ -333,22 +336,58 @@ def course_detail(course_slug):
     if not c_info: return "404", 404
     course, sections = get_course_structure(c_info['id'])
     completed_ids = [r['video_id'] for r in (execute_query("SELECT video_id FROM student_video_progress WHERE user_id = %s", (app.user['id'],), fetchall=True) or [])]
+    total_lectures = 0
+    completed_lectures = 0
     for sec in sections:
         for lec in sec['lectures']:
+            total_lectures += 1
             lec['is_completed'] = lec['id'] in completed_ids
+            if lec['is_completed']: completed_lectures += 1
+            
+    is_course_finished = (total_lectures > 0 and completed_lectures >= total_lectures)
     purchased = execute_query("SELECT id FROM purchases_app_coursespurchased WHERE user_id = %s AND course_id = %s", (app.user['id'], course['id']), fetchone=True)
-    return render_template('course_detail.html', course=course, sections=sections, purchased=purchased)
+    return render_template('course_detail.html', course=course, sections=sections, purchased=purchased, is_course_finished=is_course_finished)
+
+@app.route('/course/<course_slug>/certificate')
+def course_certificate(course_slug):
+    if not getattr(app, 'user', None): return redirect(url_for('login'))
+    course = execute_query("SELECT id, title FROM courses_app_course WHERE slug = %s", (course_slug,), fetchone=True)
+    if not course: return "404", 404
+    
+    total = execute_query("SELECT COUNT(*) as cnt FROM courses_app_video WHERE course_id = %s", (course['id'],), fetchone=True)['cnt'] or 0
+    done = execute_query("SELECT COUNT(DISTINCT vp.video_id) as cnt FROM student_video_progress vp JOIN courses_app_video v ON vp.video_id = v.id WHERE vp.user_id = %s AND v.course_id = %s AND vp.is_completed = 1", (app.user['id'], course['id']), fetchone=True)['cnt'] or 0
+    
+    if total == 0 or done < total:
+        flash("You haven't completed this course yet!", "warning")
+        return redirect(url_for('course_detail', course_slug=course_slug))
+        
+    date_completed = execute_query("SELECT date FROM purchases_app_coursespurchased WHERE user_id = %s AND course_id = %s", (app.user['id'], course['id']), fetchone=True)
+    comp_date = date_completed['date'] if date_completed else None
+    
+    return render_template('certificate.html', course=course, user=app.user, date=comp_date)
 
 @app.route('/toggle_video/<int:video_id>', methods=['POST'])
 def toggle_video_progress(video_id):
     if not getattr(app, 'user', None): return jsonify({"error": "Unauthorized"}), 401
-    current = execute_query("SELECT id FROM student_video_progress WHERE user_id = %s AND video_id = %s", (app.user['id'], video_id), fetchone=True)
+    
+    vid_info = execute_query("SELECT course_id FROM courses_app_video WHERE id = %s", (video_id,), fetchone=True)
+    if not vid_info: return jsonify({"error": "Not found"}), 404
+    course_id = vid_info['course_id']
+    
+    current = execute_query("SELECT id FROM student_video_progress WHERE user_id = %s AND video_id = %s AND is_completed = 1", (app.user['id'], video_id), fetchone=True)
+    completed_now = False
+    
     if current:
         execute_query("DELETE FROM student_video_progress WHERE user_id = %s AND video_id = %s", (app.user['id'], video_id), commit=True)
-        return jsonify({"completed": False})
     else:
         execute_query("INSERT INTO student_video_progress (user_id, video_id, is_completed) VALUES (%s, %s, 1)", (app.user['id'], video_id), commit=True)
-        return jsonify({"completed": True})
+        completed_now = True
+        
+    total = execute_query("SELECT COUNT(*) as cnt FROM courses_app_video WHERE course_id = %s", (course_id,), fetchone=True)['cnt'] or 0
+    done = execute_query("SELECT COUNT(DISTINCT vp.video_id) as cnt FROM student_video_progress vp JOIN courses_app_video v ON vp.video_id = v.id WHERE vp.user_id = %s AND v.course_id = %s AND vp.is_completed = 1", (app.user['id'], course_id), fetchone=True)['cnt'] or 0
+    
+    is_finished = (completed_now and total > 0 and done >= total)
+    return jsonify({"completed": completed_now, "course_finished": is_finished, "done": done, "total": total})
 
 @app.route('/profile', methods=['GET', 'POST'])
 def profile():
@@ -444,7 +483,7 @@ def enrollments():
     grouped = {}
     for r in data:
         t = execute_query("SELECT COUNT(*) as cnt FROM courses_app_video WHERE course_id = %s", (r['c_id'],), fetchone=True)['cnt'] or 0
-        d = execute_query("SELECT COUNT(*) as cnt FROM student_video_progress vp JOIN courses_app_video v ON vp.video_id = v.id WHERE vp.user_id = %s AND v.course_id = %s", (r['s_id'], r['c_id']), fetchone=True)['cnt'] or 0
+        d = execute_query("SELECT COUNT(DISTINCT vp.video_id) as cnt FROM student_video_progress vp JOIN courses_app_video v ON vp.video_id = v.id WHERE vp.user_id = %s AND v.course_id = %s AND vp.is_completed = 1", (r['s_id'], r['c_id']), fetchone=True)['cnt'] or 0
         prog = int((d/t*100)) if t > 0 else 0
         name = f"{r.get('first_name') or ''} {r.get('last_name') or ''}".strip() or r['s_name']
         s_obj = {'name': name, 'progress': prog}
@@ -457,8 +496,11 @@ def resend_otp():
     if 'pending_user' not in session: return redirect(url_for('register'))
     otp = str(random.randint(100000, 999999))
     session['pending_user']['otp'] = otp; session.modified = True
+    
     if send_otp_email(session['pending_user']['email'], otp):
         flash("A new OTP has been sent.", "success")
+    else:
+        flash("Failed to send OTP email. Please check your Gmail App Password configuration in config.py", "error")
     return redirect(url_for('verify_otp'))
 
 @app.route('/languages')
@@ -519,7 +561,7 @@ def my_courses():
     courses = execute_query("SELECT c.* FROM courses_app_course c JOIN purchases_app_coursespurchased p ON c.id = p.course_id WHERE p.user_id = %s ORDER BY p.id DESC", (app.user['id'],), fetchall=True) or []
     for c in courses:
         total = execute_query("SELECT COUNT(*) as cnt FROM courses_app_video WHERE course_id = %s", (c['id'],), fetchone=True)['cnt'] or 0
-        done = execute_query("SELECT COUNT(*) as cnt FROM student_video_progress vp JOIN courses_app_video v ON vp.video_id = v.id WHERE vp.user_id = %s AND v.course_id = %s", (app.user['id'], c['id']), fetchone=True)['cnt'] or 0
+        done = execute_query("SELECT COUNT(DISTINCT vp.video_id) as cnt FROM student_video_progress vp JOIN courses_app_video v ON vp.video_id = v.id WHERE vp.user_id = %s AND v.course_id = %s AND vp.is_completed = 1", (app.user['id'], c['id']), fetchone=True)['cnt'] or 0
         c['progress_percent'] = int((done / total * 100)) if total > 0 else 0
         cat = execute_query("SELECT name FROM courses_app_course_category WHERE id = %s", (c['category_id'],), fetchone=True)
         c['domain'] = cat['name'] if cat else 'General'

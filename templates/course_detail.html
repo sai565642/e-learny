@@ -174,6 +174,28 @@
                 </div>
             </div>
             {% endfor %}
+
+            {% if is_course_finished %}
+            <div style="margin-top: 50px; padding: 40px; text-align: center; background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); border: 2px dashed #007bff;">
+                <h3 style="font-weight: 800; font-size: 1.5rem; color: #1e293b; margin-bottom: 10px;">🎉 Course Successfully Completed!</h3>
+                <p style="color: #64748b; margin-bottom: 25px;">You've completed all curriculum items. Download your official certificate to share your achievement.</p>
+                <a href="{{ url_for('course_certificate', course_slug=course.slug) }}" target="_blank" class="btn-action btn-buy" style="font-family: 'Poppins', sans-serif; position: relative; margin: 0 auto; display: inline-flex; width: auto; padding: 15px 40px; justify-content: center;">
+                    <i class="fas fa-award" style="font-size: 1.2rem;"></i> Download Official Certificate
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Course Completion Modal -->
+<div id="courseCompleteModal" class="modal-overlay">
+    <div class="modal-card" style="background: radial-gradient(circle at top right, #fff, #f8fafc); border: 2px solid #e2e8f0; text-align: center;">
+        <div class="modal-icon" style="background: linear-gradient(135deg, #007bff, #0056b3); color: white; width: 80px; height: 80px; font-size: 2.5rem; margin: -60px auto 20px; border: 6px solid white; box-shadow: 0 10px 25px rgba(0, 123, 255, 0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center;"><i class="fas fa-trophy"></i></div>
+        <h3 style="background: linear-gradient(90deg, #007bff, #0056b3); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 1.5rem; margin-bottom: 15px;">Course Completed!</h3>
+        <p style="color: #64748b; margin-bottom: 25px; line-height: 1.5;">Congratulations! You have successfully completed <strong>{{ course.title }}</strong>.</p>
+        <div class="modal-actions" style="justify-content: center;">
+            <button type="button" class="btn-modal-confirm" onclick="location.reload()" style="font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #007bff, #0056b3); padding: 14px 28px; width: 100%; border:none; border-radius:12px; color:white; font-weight:700; font-size:1rem; cursor:pointer;"><i class="fas fa-certificate"></i> Claim Your Certificate</button>
         </div>
     </div>
 </div>
@@ -181,7 +203,16 @@
 <script>
 async function toggleProgress(id) {
     const res = await fetch(`/toggle_video/${id}`, { method: 'POST' });
-    if(res.ok) location.reload();
+    if(res.ok) {
+        const data = await res.json();
+        if(data.course_finished) {
+            const modal = document.getElementById('courseCompleteModal');
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('active'), 10);
+        } else {
+            location.reload();
+        }
+    }
 }
 </script>
 {% endblock %}

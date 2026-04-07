@@ -257,11 +257,11 @@
                 </div>
 
                 <div style="display:flex; justify-content:space-between; font-size: 0.65rem; color:#94a3b8; font-weight:800; text-transform:uppercase; margin-bottom:6px;">
-                    <span>Completion</span>
-                    <span style="color:var(--accent-color)">{{ course.progress_percent }}%</span>
+                    <span>{% if course.progress_percent|int == 100 %}Course Completed 🎓{% else %}Completion{% endif %}</span>
+                    <span style="color: {{ '#10b981' if course.progress_percent|int == 100 else 'var(--accent-color)' }}">{{ course.progress_percent }}%</span>
                 </div>
                 <div class="progress-bar" style="height: 6px; background:#f1f5f9; border-radius:10px; margin-bottom:15px; overflow:hidden;">
-                    <div class="progress-fill" style="width: {{ course.progress_percent }}%; height:100%; background:var(--accent-color); border-radius:10px;"></div>
+                    <div class="progress-fill" style="width: {{ course.progress_percent }}%; height:100%; background: {{ '#10b981' if course.progress_percent|int == 100 else 'var(--accent-color)' }}; border-radius:10px;"></div>
                 </div>
                 {% set is_complete = course.progress_percent|int == 100 %}
                 <a href="{{ url_for('course_detail', course_slug=course.slug) }}" style="display:flex; width:fit-content; margin: 0 auto; align-items:center; justify-content:center; padding: 10px 25px; background: #007bff; border: 1.5px solid #007bff; border-radius:12px; color: white; font-weight:700; font-size:0.85rem; text-decoration:none; transition:0.3s; box-shadow: 0 5px 15px rgba(0,123,255,0.2);" onmouseover="this.style.background='#0056b3'; this.style.borderColor='#0056b3'; this.style.transform='translateY(-2px)'" onmouseout="this.style.background='#007bff'; this.style.borderColor='#007bff'; this.style.transform='translateY(0)'">
